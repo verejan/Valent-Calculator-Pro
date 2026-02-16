@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valent.md - Motor Calcul Prețuri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .active-region { background-color: #10b981 !important; color: white !important; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
+        
+        /* Stiluri pentru export PDF */
+        .pdf-mode .no-pdf { display: none !important; }
+        .pdf-mode { padding: 40px !important; width: 210mm !important; margin: 0 auto !important; }
+        .hide-prices .price-col { display: none !important; }
+
+        @media (max-width: 1024px) {
+            .main-layout { flex-direction: column; height: auto; overflow-y: auto; }
+            .side-panel { width: 100% !important; height: auto !important; border-right: none; border-bottom: 1px solid #e2e8f0; }
+            .preview-area { padding: 1rem !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 lg:h-screen lg:overflow-hidden">
+
+<div id="app" class="flex flex-col lg:flex-row h-full main-layout">
+    <!-- NAVIGARE LATERALĂ -->
+    <nav class="w-full lg:w-72 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 side-panel">
+        <div class="p-6 border-b border-slate-800">
+            <div class="flex items-center gap-2 mb-1">
+                <div class="bg-emerald-500 p-1.5 rounded-lg text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="text-white font-extrabold text-xl tracking-tighter italic uppercase leading-none">VALENT.MD</span>
+            </div>
+            <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-widest italic">Rețea Globală de Montaj</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-4 space-y-1 no-scrollbar lg:max-h-none max-h-48" id="region-list">
+            <!-- Injectat din JS -->
+        </div>
+
+        <div class="p-4 bg-slate-950 border-t border-slate-800 grid grid-cols-2 gap-2">
+            <button onclick="setInstallType('renovare')" id="btn-renovare" class="w-full py-2 text-[10px] font-black rounded-lg border transition-all uppercase">RENOVARE</button>
+            <button onclick="setInstallType('nou')" id="btn-nou" class="w-full py-2 text-[10px] font-black rounded-lg border transition-all uppercase">NOU</button>
+        </div>
+    </nav>
+
+    <!-- PANOU CONFIGURARE -->
+    <aside class="w-full lg:w-80 bg-white border-r border-slate-200 flex flex-col shadow-xl z-10 side-panel">
+        <div class="p-4 lg:p-6 border-b border-slate-100 bg-slate-50/50">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Informații Beneficiar</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+                <input oninput="updateClientInfo('name', this.value)" class="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Nume Beneficiar">
+                <input oninput="updateClientInfo('phone', this.value)" id="client-phone-input" class="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Telefon">
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar p-4 lg:p-6" id="items-container">
+            <!-- Dinamica produselor -->
+        </div>
+
+        <div class="p-4 lg:p-6 bg-slate-50 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+            <button onclick="generatePDF('tech')" class="w-full bg-slate-800 text-white py-3 rounded-xl text-[10px] font-black uppercase hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                PDF Tehnic
+            </button>
+            <button onclick="generatePDF('client')" class="w-full bg-emerald-500 text-white py-3 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-600 transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                PDF Client
+            </button>
+        </div>
+    </aside>
+
+    <!-- PREVIZUALIZARE DOCUMENT -->
+    <main class="flex-1 p-4 lg:p-8 overflow-y-auto no-scrollbar bg-slate-100 preview-area">
+        <div id="invoice-doc" class="max-w-3xl mx-auto bg-white shadow-2xl rounded-2xl lg:rounded-[2.5rem] flex flex-col overflow-hidden min-h-full border border-white">
+            <div class="p-6 lg:p-10 bg-slate-900 text-white">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                        <h2 class="text-3xl font-black italic tracking-tighter">VALENT.MD</h2>
+                        <p id="view-region-note" class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-2 leading-relaxed">Ofertă Profesională de Montaj</p>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <div id="view-region-badge" class="px-3 py-1 bg-emerald-500 text-white rounded-full text-[10px] font-black inline-block uppercase tracking-wide">---</div>
+                        <p id="current-date" class="text-[10px] text-slate-500 mt-2 font-bold"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 lg:p-10 flex-1" id="pdf-content">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10 pb-10 border-b border-slate-100">
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Beneficiar</h4>
+                        <p id="view-client-name" class="text-sm font-bold text-slate-800">---</p>
+                        <p id="view-client-phone" class="text-xs text-slate-500 mt-1 font-medium">---</p>
+                    </div>
+                    <div class="sm:text-right">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Tip Proiect</h4>
+                        <span id="view-type-label" class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-black text-slate-600 uppercase">---</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full mb-10 min-w-[400px]" id="main-table">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-left">
+                                <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Serviciu / Produs</th>
+                                <th class="pb-4 text-center text-[10px] font-black text-slate-400 uppercase w-16 tracking-widest">Cant</th>
+                                <th class="pb-4 text-right text-[10px] font-black text-slate-400 uppercase w-24 price-col tracking-widest">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-items" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+                
+                <div id="extra-notes" class="text-[10px] text-slate-400 italic leading-relaxed font-medium"></div>
+            </div>
+
+            <div class="bg-slate-50 p-6 lg:p-10 border-t border-slate-100 mt-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <button onclick="toggleTax()" id="tax-btn" class="no-pdf w-full sm:w-auto px-6 py-2 rounded-xl text-[10px] font-black uppercase border transition-all"></button>
+                    <div class="text-center sm:text-right w-full sm:w-auto">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Total Montaj (EUR)</p>
+                        <div class="flex items-end justify-center sm:justify-end gap-1">
+                            <span id="total-amount" class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter">0</span>
+                            <span class="text-xl font-black text-slate-900 mb-1.5">€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // DATELE RĂMÂN NESCHIMBATE
+    const pricingData = {
+        ie_simplu: { 
+            name: "Irlanda Simplu", flag: "🇮🇪", tax: 1.23, type: 'zone', prefix: '+353', 
+            note: "MONTAJ SPUMĂ+ȘURUBURI. DEMONTAJUL ESTE INCLUS.",
+            zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:114}, {l:"Raza 60-100km", p:171}, {l:"Raza 100-150km", p:227}], 
+            cats: [
+                { t: "1. Uși Intrare", items: [{id:"ies1", n:"Ușă 1 deschidere (<90cm)", p:171}, {id:"ies2", n:"Ușă 2 deschideri (<1.30m)", p:205}, {id:"ies3", n:"Ușă 2 deschideri (<1.80m)", p:227}]},
+                { t: "2. Ferestre", items: [{id:"ies4", n:"1 Deschidere (<1m)", p:114}, {id:"ies5", n:"2 Deschideri (<1.50m)", p:137}, {id:"ies6", n:"3-4 Deschideri (<2.20m)", p:147}, {id:"ies7", n:"Bay Window (3 părți)", p:389}]},
+                { t: "3. Uși Glisante", items: [{id:"ies8", n:"Indiferent de mărime", p:284}]},
+                { t: "4. Pervazuri / Scurgeri", items: [{id:"ies9", n:"Până la 1m lungime", p:34}, {id:"ies10", n:"Până la 1.50m lungime", p:42}, {id:"ies11", n:"Până la 2.20m lungime", p:58}]},
+                { t: "5. Plase Insecte", items: [{id:"ies12", n:"Până la 80cm lățime", p:34}, {id:"ies13", n:"80cm - 1.20m lățime", p:42}, {id:"ies14", n:"1.20m - 1.80m lățime", p:58}]},
+                { t: "6. Extra", items: [{id:"ies15", n:"Ridicare etaj (>et.2)", p:53}]}
+            ] 
+        },
+        ie_cheie: { 
+            name: "Irlanda Cheie", flag: "🇮🇪", tax: 1.23, type: 'zone', prefix: '+353',
+            note: "MONTAJ LA CHEIE (RENOVARE SAU CONSTRUCȚIE NOUĂ)",
+            zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:111}, {l:"Raza 60-100km", p:163}, {l:"Raza 100-150km", p:221}], 
+            cats: [
+                { t: "1. Uși Intrare", items: [{id:"iec1", n:"Ușă 1 deschidere (<90cm)", pr:326, pn:216}, {id:"iec2", n:"Ușă 2 deschideri (<1.30m)", pr:357, pn:252}, {id:"iec3", n:"Ușă 2 deschideri (<1.80m)", pr:378, pn:268}]},
+                { t: "2. Ferestre", items: [{id:"iec4", n:"1 Deschidere (<1m)", pr:195, pn:111}, {id:"iec5", n:"2 Deschideri (<1.50m)", pr:210, pn:142}, {id:"iec6", n:"3-4 Deschideri (<2.20m)", pr:221, pn:163}, {id:"iec7", n:"Bay Window (3 părți)", pr:436, pn:436}]},
+                { t: "3. Uși Glisante", items: [{id:"iec8", n:"Indiferent de mărime", pr:436, pn:378}]},
+                { t: "4. Pervazuri / Scurgeri", items: [{id:"iec9", n:"Până la 1m lungime", pr:34, pn:34}, {id:"iec10", n:"Până la 1.50m lungime", pr:42, pn:42}, {id:"iec11", n:"Până la 2.20m lungime", pr:58, pn:58}]},
+                { t: "5. Plase Insecte", items: [{id:"iec12", n:"Până la 80cm lățime", pr:34, pn:34}, {id:"iec13", n:"80cm - 1.20m lățime", pr:42, pn:42}, {id:"iec14", n:"1.20m - 1.80m lățime", pr:58, pn:58}]},
+                { t: "6. Extra", items: [{id:"iec15", n:"Ridicare etaj (>et.2)", pr:53, pn:53}]}
+            ] 
+        },
+        ie_finish: { 
+            name: "Irlanda Finish Ext", flag: "🇮🇪", tax: 1.23, type: 'zone', prefix: '+353',
+            note: "SILICON EXTERIOR + SPUMĂ INTERIOR. DEMONTAJUL ESTE INCLUS.",
+            zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:114}, {l:"Raza 60-100km", p:171}, {l:"Raza 100-150km", p:227}], 
+            cats: [
+                { t: "1. Uși Intrare", items: [{id:"ief1", n:"Ușă 1 deschidere (<90cm)", p:227}, {id:"ief2", n:"Ușă 2 deschideri (<1.30m)", p:261}, {id:"ief3", n:"Ușă 2 deschideri (<1.80m)", p:284}]},
+                { t: "2. Ferestre", items: [{id:"ief4", n:"1 Deschidere (<1m)", p:137}, {id:"ief5", n:"2 Deschideri (<1.50m)", p:159}, {id:"ief6", n:"3-4 Deschideri (<2.20m)", p:171}, {id:"ief7", n:"Bay Window (3 părți)", p:436}]},
+                { t: "3. Uși Glisante", items: [{id:"ief8", n:"Indiferent de mărime", p:341}]},
+                { t: "4. Pervazuri / Scurgeri", items: [{id:"ief9", n:"Până la 1m lungime", p:34}, {id:"ief10", n:"Până la 1.50m lungime", p:42}, {id:"ief11", n:"Până la 2.20m lungime", p:58}]},
+                { t: "5. Plase Insecte", items: [{id:"ief12", n:"Până la 80cm lățime", p:34}, {id:"ief13", n:"80cm - 1.20m lățime", p:42}, {id:"ief14", n:"1.20m - 1.80m lățime", p:58}]},
+                { t: "6. Extra", items: [{id:"ief15", n:"Ridicare etaj (>et.2)", p:53}]}
+            ] 
+        },
+        torino: { name: "Torino (IT)", flag: "🇮🇹", tax: 1.22, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Elemente", items: [{id:"t1", n:"Ușă PVC (1-2 canate)", p:134}, {id:"t2", n:"Fereastră (1-4 canate)", p:134}, {id:"t3", n:"Casonet / Taparella", p:40}, {id:"t4", n:"Plasă Insecte", p:15}, {id:"t5", n:"Pervaz", p:15}, {id:"t6", n:"Măsurare", p:150}] }] },
+        bologna: { name: "Bologna (IT)", flag: "🇮🇹", tax: 1.15, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Tâmplărie", items: [{id:"b1", n:"Ușă PVC", pr:160, pn:133}, {id:"b2", n:"Fereastră 1-2 canate", pr:100, pn:72}, {id:"b3", n:"Fereastră 3-4 canate", pr:127, pn:94}, {id:"b4", n:"Casonet / Taparella", p:35}, {id:"b5", n:"Plasă", p:15}, {id:"b6", n:"Demontaj", p:27}, {id:"b7", n:"Măsurare", p:150}] }] },
+        milano: { name: "Milano (IT)", flag: "🇮🇹", tax: 1.24, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Tâmplărie", items: [{id:"m1", n:"Fereastră 1 canat", pr:95, pn:74}, {id:"m2", n:"Fereastră 2 canate", pr:116, pn:95}, {id:"m3", n:"Ușă PVC 1 canat", pr:137, pn:116}, {id:"m4", n:"Casonet", p:32}, {id:"m5", n:"Plasă", p:15}, {id:"m6", n:"Măsurare", p:167}] }] },
+        genova: { name: "Genova (IT)", flag: "🇮🇹", tax: 1.22, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Montaj", items: [{id:"g1", n:"Fereastră 1 canat", pr:78, pn:55}, {id:"g2", n:"Fereastră 2 canate", pr:83, pn:61}, {id:"g3", n:"Ușă PVC", pr:155, pn:134}, {id:"g4", n:"Casonet", p:35}, {id:"g5", n:"Plasă", p:12}, {id:"g6", n:"Măsurare", p:167}] }] },
+        paris: { name: "Paris (FR)", flag: "🇫🇷", tax: 1.20, type: 'zone', prefix: '+33', zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:56}, {l:"Raza 60-100km", p:111}], cats: [{ t: "Uși & Ferestre", items: [{id:"p1", n:"Ușă 1 deschidere", pr:111, pn:100}, {id:"p2", n:"Ușă 2 deschideri", pr:133, pn:111}, {id:"p3", n:"Fereastră 1 desch.", pr:100, pn:78}, {id:"p4", n:"Fereastră 2 desch.", pr:111, pn:89}, {id:"p5", n:"Ușă Glisantă", pr:189, pn:167}] }, { t: "Accesorii", items: [{id:"p7", n:"Pervaz", p:33}, {id:"p8", n:"Plasă Geam", p:22}, {id:"p9", n:"Plasă Ușă", p:28}, {id:"p10", n:"Roletă Manuală", p:56}, {id:"p11", n:"Roletă Electrică", p:66}] }, { t: "Extra", items: [{id:"p12", n:"Etaj 1-3", p:11}, {id:"p13", n:"Etaj 3-6", p:17}, {id:"p14", n:"Evacuare Geam", p:22}, {id:"p15", n:"Evacuare Ușă", p:33}, {id:"p16", n:"Măsurare", p:167}] }] },
+        roma: { name: "Roma (IT)", flag: "🇮🇹", tax: 1.22, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Tâmplărie", items: [{id:"r1", n:"Ușă PVC 1 desch.", pr:137, pn:116}, {id:"r2", n:"Fereastră 1 desch.", pr:95, pn:74}, {id:"r3", n:"Ușă Balcon 1 desch.", pr:126, pn:105}] }, { t: "Glisante", items: [{id:"r4", n:"Paralel Glisantă", pr:231, pn:210}, {id:"r5", n:"Veka Motion", pr:331, pn:310}] }, { t: "Accesorii", items: [{id:"r6", n:"Casonet", p:48}, {id:"r7", n:"Taparella Manuală", pr:53, pn:32}, {id:"r8", n:"Taparella Electrică", pr:83, pn:62}, {id:"r9", n:"Persiana", pr:74, pn:48}] }, { t: "Extra", items: [{id:"r10", n:"Demontaj", p:21}, {id:"r11", n:"Măsurare", p:150}] }] },
+        kassel: { name: "Kassel (DE)", flag: "🇩🇪", tax: 1.19, type: 'zone', prefix: '+49', zones: [{l:"Oraș", p:0}, {l:"Exterior", p:50}], cats: [{ t: "Montaj ML", items: [{id:"k1", n:"Casă Nouă", p:50}, {id:"k2", n:"Renovare", p:55.5}, {id:"k3", n:"Renovare+Evacuare", p:61}] }, { t: "Extra", items: [{id:"k4", n:"Ușă VEKA (+)", p:167}, {id:"k5", n:"Taparella Man", p:44}, {id:"k6", n:"Plasă", p:33}, {id:"k7", n:"Măsurare", p:56}] }] },
+        koln: { name: "Koln (DE)", flag: "🇩🇪", tax: 1.19, rate: 0.8, type: 'per_km', prefix: '+49', cats: [{ t: "Uși/Geam", items: [{id:"ko1", n:"Ușă 1 desch.", pr:211, pn:178}, {id:"ko2", n:"Geam 1 desch.", pr:133, pn:111}, {id:"ko3", n:"Balcon 1 desch.", pr:167, pn:144}] }, { t: "Glisante", items: [{id:"ko4", n:"Glisantă Simplă", pr:289, pn:255}, {id:"ko5", n:"Veka Motion", pr:355, pn:322}] }, { t: "Extra", items: [{id:"ko7", n:"Finisaj", p:44}, {id:"ko8", n:"Evacuare", p:22}, {id:"ko9", n:"Măsurare", p:167}] }] },
+        viena: { name: "Viena (AT)", flag: "🇦🇹", tax: 1.20, rate: 1, type: 'per_km', prefix: '+43', cats: [{ t: "Montaj", items: [{id:"v1", n:"Reparație", p:158}, {id:"v2", n:"Casă Nouă", p:179}, {id:"v3", n:"Montaj ML", p:27}, {id:"v4", n:"Roletă", p:48}, {id:"v5", n:"Demontaj", p:25}, {id:"v6", n:"Măsurare", p:150}] }] }
+    };
+
+    let state = { region: 'ie_simplu', type: 'renovare', quantities: {}, dist: 0, tax: false, client: { name: 'Beneficiar', phone: '+353' } };
+
+    function init() {
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' });
+        renderRegions();
+        renderConfig();
+        updateUI();
+    }
+
+    function renderRegions() {
+        const container = document.getElementById('region-list');
+        container.innerHTML = '<h3 class="px-3 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 lg:block hidden">Pachete & Regiuni</h3>';
+        Object.entries(pricingData).forEach(([id, r]) => {
+            const btn = document.createElement('button');
+            const isActive = state.region === id;
+            btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all flex items-center justify-between group mb-1 shrink-0 ${isActive ? 'active-region' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            btn.innerHTML = `<div class="flex items-center"><span class="mr-3 text-lg">${r.flag}</span><span class="text-xs font-bold">${r.name}</span></div>`;
+            btn.onclick = () => { 
+                state.region = id; state.quantities = {}; state.dist = 0; 
+                state.client.phone = r.prefix;
+                document.getElementById('client-phone-input').value = r.prefix;
+                renderRegions(); renderConfig(); updateUI(); 
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function renderConfig() {
+        const data = pricingData[state.region];
+        const container = document.getElementById('items-container');
+        let html = `<div class="mb-8"><h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Distanță / Zonă</h3>`;
+        
+        if(data.type === 'per_km') {
+            html += `<div class="relative"><input type="number" oninput="state.dist=this.value;updateUI()" class="w-full h-11 bg-slate-100 rounded-xl px-4 text-xs font-black outline-none border-2 border-transparent focus:border-emerald-500" placeholder="0"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">KM</span></div>`;
+        } else {
+            html += `<select onchange="state.dist=this.value;updateUI()" class="w-full h-11 bg-slate-100 rounded-xl px-4 text-xs font-black outline-none border-2 border-transparent focus:border-emerald-500 appearance-none">`;
+            data.zones.forEach((z, i) => html += `<option value="${i}">${z.l} (+${z.p}€)</option>`);
+            html += `</select>`;
+        }
+        html += `</div><div class="space-y-6">`;
+        
+        data.cats.forEach(cat => {
+            html += `<div><h4 class="text-[10px] font-black text-emerald-600 mb-3 uppercase tracking-wider">${cat.t}</h4><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">`;
+            cat.items.forEach(item => {
+                const val = state.quantities[item.id] || "";
+                const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
+                html += `
+                <div class="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all bg-white lg:bg-transparent shadow-sm lg:shadow-none">
+                    <div class="flex-1">
+                        <p class="text-[11px] font-bold text-slate-700 leading-tight">${item.n}</p>
+                        <p class="text-[9px] font-black text-emerald-500 mt-1 uppercase">${price}€ / buc</p>
+                    </div>
+                    <input type="number" value="${val}" oninput="state.quantities['${item.id}']=this.value;updateUI()" class="w-14 h-10 bg-slate-100 border-2 border-transparent rounded-xl text-center text-xs font-black outline-none focus:border-emerald-500 focus:bg-white transition-colors" placeholder="0">
+                </div>`;
+            });
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateUI() {
+        const data = pricingData[state.region];
+        document.getElementById('btn-renovare').className = `w-full py-2 text-[10px] font-black rounded-lg border-2 transition-all ${state.type === 'renovare' ? 'bg-white text-slate-900 border-white shadow-md' : 'text-slate-500 border-slate-800 lg:border-slate-800'}`;
+        document.getElementById('btn-nou').className = `w-full py-2 text-[10px] font-black rounded-lg border-2 transition-all ${state.type === 'nou' ? 'bg-white text-slate-900 border-white shadow-md' : 'text-slate-500 border-slate-800 lg:border-slate-800'}`;
+        
+        document.getElementById('view-region-badge').innerText = data.name.toUpperCase();
+        document.getElementById('view-region-note').innerText = data.note || "Ofertă Profesională de Montaj";
+        document.getElementById('view-type-label').innerText = state.type === 'renovare' ? 'Renovare' : 'Casă Nouă';
+        
+        let subtotal = 0;
+        let itemsHtml = '';
+        data.cats.forEach(cat => {
+            cat.items.forEach(item => {
+                const qty = parseFloat(state.quantities[item.id]) || 0;
+                if(qty > 0) {
+                    const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
+                    const lineTotal = qty * price;
+                    subtotal += lineTotal;
+                    itemsHtml += `<tr><td class="py-4"><p class="text-[11px] font-bold text-slate-800">${item.n}</p></td><td class="py-4 text-center text-xs font-black text-slate-500">${qty}</td><td class="py-4 text-right text-xs font-black text-slate-900 price-col">${lineTotal.toLocaleString()}€</td></tr>`;
+                }
+            });
+        });
+
+        const transport = data.type === 'per_km' ? (state.dist * data.rate) : (data.zones[state.dist]?.p || 0);
+        if(transport > 0) {
+            itemsHtml += `<tr class="bg-slate-50/50"><td class="py-3 px-2 italic text-[10px] font-bold text-slate-500 tracking-wider uppercase">Transport (${data.type === 'per_km' ? state.dist + ' km' : 'Zonă'})</td><td class="py-3 text-center text-xs font-black">1</td><td class="py-3 px-2 text-right text-xs font-black text-slate-900 price-col">${transport.toFixed(0)}€</td></tr>`;
+        }
+
+        document.getElementById('invoice-items').innerHTML = itemsHtml || '<tr><td colspan="3" class="py-16 text-center text-slate-300 text-xs font-black uppercase tracking-widest">Selectați servicii din meniul stâng</td></tr>';
+        
+        const totalFinal = state.tax ? ((subtotal + transport) * data.tax) : (subtotal + transport);
+        document.getElementById('total-amount').innerText = Math.round(totalFinal).toLocaleString();
+        
+        const taxBtn = document.getElementById('tax-btn');
+        taxBtn.innerText = state.tax ? `Include Taxă (${Math.round(data.tax*100-100)}%)` : `Preț Cash (0% Tax)`;
+        taxBtn.className = `no-pdf px-4 py-2 rounded-xl text-[10px] font-black uppercase border-2 transition-all ${state.tax ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg' : 'bg-white text-slate-400 border-slate-200'}`;
+        
+        document.getElementById('view-client-name').innerText = state.client.name || 'Beneficiar';
+        document.getElementById('view-client-phone').innerText = state.client.phone || '---';
+        document.getElementById('extra-notes').innerText = data.note ? `* Notă: ${data.note}` : "";
+    }
+
+    function generatePDF(mode) {
+        const element = document.getElementById('invoice-doc');
+        element.classList.add('pdf-mode');
+        if (mode === 'client') element.classList.add('hide-prices');
+
+        const opt = {
+            margin: [0, 0],
+            filename: `Oferta_Valent.md_${state.client.name.replace(/\s+/g, '_')}_${mode}.pdf`,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.classList.remove('pdf-mode');
+            element.classList.remove('hide-prices');
+        });
+    }
+
+    function setInstallType(t) { state.type = t; renderConfig(); updateUI(); }
+    function toggleTax() { state.tax = !state.tax; updateUI(); }
+    function updateClientInfo(k, v) { state.client[k] = v; updateUI(); }
+
+    window.onload = init;
+</script>
+</body>
+</html>
