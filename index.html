@@ -125,7 +125,7 @@
                     </table>
                 </div>
                 
-                <div id="extra-notes" class="text-[10px] text-slate-400 italic leading-relaxed font-medium"></div>
+                <div id="extra-notes" class="text-[10px] text-slate-500 leading-relaxed font-medium"></div>
             </div>
 
             <div class="bg-slate-50 p-6 lg:p-10 border-t border-slate-100 mt-auto">
@@ -156,7 +156,7 @@
             tax: 1.23, 
             type: 'zone', 
             prefix: '+353', 
-            note: "ATENȚIE!!! MONTAJ SPUMĂ+ȘURUBURI. DEMONTAJUL E CADOU.",
+            note: "Montaj spumă + șuruburi. Demontaj inclus.",
             zones: [
                 {l:"Raza 0-40km", p:0}, 
                 {l:"Raza 40-60km", p:114}, 
@@ -219,7 +219,7 @@
             tax: 1.23, 
             type: 'zone', 
             prefix: '+353',
-            note: "MONTAJ LA CHEIE (RENOVARE SAU CONSTRUCȚIE NOUĂ). Demontaj inclus.",
+            note: "Montaj la cheie (renovare sau construcție nouă). Demontaj inclus.",
             zones: [
                 {l:"Raza 0-40km", p:0}, 
                 {l:"Raza 40-60km", p:111}, 
@@ -282,7 +282,7 @@
             tax: 1.23, 
             type: 'zone', 
             prefix: '+353',
-            note: "ATENȚIE!!! SILICON EXTERIOR + SPUMĂ INTERIOR. DEMONTAJUL E CADOU.",
+            note: "Silicon exterior + spumă interior. Demontaj inclus.",
             zones: [
                 {l:"Raza 0-40km", p:0}, 
                 {l:"Raza 40-60km", p:114}, 
@@ -346,7 +346,7 @@
             rate: 0.6, 
             type: 'zone', 
             prefix: '+39',
-            note: "DEMONTAJ: 16€ fereastră, 21€ ușă. Măsurare minimă 150€. Evacuare nu este disponibilă.",
+            note: "Evacuare nu este disponibilă.",
             zones: [
                 {l:"Forli/Cesena/Rimini/Pesaro/Imola", p:0}, 
                 {l:"Faenza (50-100km)", p:158}
@@ -436,7 +436,7 @@
             rate: 0.6, 
             type: 'per_km', 
             prefix: '+39',
-            note: "DEMONTAJ: 27€/unitate. Măsurare: 150€ avans. Montaj CASH. Evacuare: 0.55€/kg. Factura +15%.",
+            note: "Montaj CASH. Toate proiectele se pun pe pallet.",
             cats: [
                 { 
                     t: "1. Uși Intrare", 
@@ -523,7 +523,7 @@
             rate: 0.6, 
             type: 'per_km', 
             prefix: '+39',
-            note: "PREȚURI CASH (FĂRĂ TVA). Demontaj: 25€. Măsurare: 167€ avans. Evacuare: 0.40€/kg. Transport >25km de Grosseto: 0.6€/km.",
+            note: "Prețuri fără TVA. Transport >25km de Grosseto.",
             cats: [
                 { 
                     t: "1. Uși Intrare", 
@@ -610,7 +610,7 @@
             type: 'per_km', 
             prefix: '+39',
             hideTaxButton: true,
-            note: "PREȚURI CU FACTURĂ (TVA 22% deja inclus). Demontaj: 25€. Măsurare: 165€ avans. Evacuare: 0.40€/kg. Transport >25km: 0.55€/km.",
+            note: "Prețuri cu TVA 22% inclus. Transport >25km.",
             cats: [
                 { 
                     t: "1. Uși Intrare", 
@@ -683,7 +683,7 @@
             rate: 0.6, 
             type: 'per_km', 
             prefix: '+39',
-            note: "DEMONTAJ: 22€/unitate. Măsurare: 167€. Evacuare: 0.40€/kg. Factură +22%. Tăiere marmură: geam 15€/latură, ușă 20€/latură.",
+            note: "Include Padova, Verona, Venezia, Trento, Vicenza, Udine, Treviso. Tăiere marmură disponibilă.",
             cats: [
                 { 
                     t: "1. Uși Intrare", 
@@ -1032,6 +1032,85 @@
                     ] 
                 }
             ] 
+        },
+
+        // ========== BELGIA - CASH (BRUXELLES) ==========
+        belgia_cash: { 
+            name: "Belgia (Cash)", 
+            flag: "🇧🇪", 
+            tax: 1.21, 
+            type: 'zone', 
+            prefix: '+32',
+            note: "PREȚ PE M². Măsurare: +150€. Proiect <8m²: +200€. Pervazuri/Plase incluse în montaj. Lift inclus.",
+            zones: [
+                {l:"Raza 0-40km", p:0}, 
+                {l:"Raza 40-60km", p:111}, 
+                {l:"Raza 60-100km", p:163}, 
+                {l:"Raza 100-150km", p:226},
+                {l:"Raza 150-200km", p:279}
+            ], 
+            cats: [
+                { 
+                    t: "1. Montaj (PREȚ PE M²)", 
+                    items: [
+                        {id:"bec1", n:"Montaj m² (orice tip)", pr:89, pn:61}
+                    ]
+                },
+                { 
+                    t: "2. Rolete", 
+                    items: [
+                        {id:"bec2", n:"Roletă Manuală", pr:90, pn:100},
+                        {id:"bec3", n:"Roletă Electrică", pr:100, pn:100}
+                    ]
+                },
+                { 
+                    t: "3. Extra", 
+                    items: [
+                        {id:"bec4", n:"Măsurare", p:150},
+                        {id:"bec5", n:"Proiect mic (<8m²)", p:200}
+                    ]
+                }
+            ] 
+        },
+
+        // ========== BELGIA - FACTURĂ (BRUXELLES) ==========
+        belgia_factura: { 
+            name: "Belgia (Factură)", 
+            flag: "🇧🇪", 
+            tax: 1.00, 
+            type: 'zone', 
+            prefix: '+32',
+            hideTaxButton: true,
+            note: "PREȚ PE M² (TVA 21% inclus). Măsurare: +150€. Proiect <8m²: +200€. Pervazuri/Plase incluse. Lift inclus.",
+            zones: [
+                {l:"Raza 0-40km", p:0}, 
+                {l:"Raza 40-60km", p:111}, 
+                {l:"Raza 60-100km", p:163}, 
+                {l:"Raza 100-150km", p:226},
+                {l:"Raza 150-200km", p:279}
+            ], 
+            cats: [
+                { 
+                    t: "1. Montaj (PREȚ PE M²)", 
+                    items: [
+                        {id:"bef1", n:"Montaj m² (orice tip)", pr:104, pn:71}
+                    ]
+                },
+                { 
+                    t: "2. Rolete", 
+                    items: [
+                        {id:"bef2", n:"Roletă Manuală", pr:90, pn:100},
+                        {id:"bef3", n:"Roletă Electrică", pr:115, pn:117}
+                    ]
+                },
+                { 
+                    t: "3. Extra", 
+                    items: [
+                        {id:"bef4", n:"Măsurare", p:150},
+                        {id:"bef5", n:"Proiect mic (<8m²)", p:200}
+                    ]
+                }
+            ] 
         }
     };
 
@@ -1043,7 +1122,8 @@
         "🇮🇹 Italia": ["faenza", "ferrara", "grosseto_cash", "grosseto_factura", "padova", "torino", "bologna", "milano", "genova", "roma"],
         "🇫🇷 Franța": ["paris"],
         "🇩🇪 Germania": ["kassel", "koln"],
-        "🇦🇹 Austria": ["viena"]
+        "🇦🇹 Austria": ["viena"],
+        "🇧🇪 Belgia": ["belgia_cash", "belgia_factura"]
     };
 
     // ============================================
@@ -1231,7 +1311,28 @@
         // Info client
         document.getElementById('view-client-name').innerText = state.client.name || 'Beneficiar';
         document.getElementById('view-client-phone').innerText = state.client.phone || '---';
-        document.getElementById('extra-notes').innerText = data.note ? `* Notă: ${data.note}` : "";
+        
+        // Simplified note - only show if it contains important info, not implementation details
+        const noteElement = document.getElementById('extra-notes');
+        if (data.note) {
+            // Clean up the note - remove technical details about demolition costs, etc.
+            let cleanNote = data.note;
+            // Remove specific cost mentions for demolition/measurement
+            cleanNote = cleanNote.replace(/DEMONTAJ: \d+€[^.]*\./gi, '');
+            cleanNote = cleanNote.replace(/Măsurare: \d+€[^.]*\./gi, '');
+            cleanNote = cleanNote.replace(/Evacuare: [^.]*\./gi, '');
+            cleanNote = cleanNote.replace(/Transport[^.]*\./gi, '');
+            cleanNote = cleanNote.replace(/\s+/g, ' ').trim();
+            
+            // Only show if there's meaningful content left
+            if (cleanNote.length > 10) {
+                noteElement.innerText = `ℹ️ ${cleanNote}`;
+            } else {
+                noteElement.innerText = '';
+            }
+        } else {
+            noteElement.innerText = '';
+        }
     }
 
     function generatePDF(mode) {
