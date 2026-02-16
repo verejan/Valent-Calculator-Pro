@@ -13,7 +13,12 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        .active-region { background-color: #10b981 !important; color: white !important; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
+        .active-region { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; 
+            color: white !important; 
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3), 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+            transform: translateX(2px);
+        }
         
         /* Stiluri pentru export PDF */
         .pdf-mode .no-pdf { display: none !important; }
@@ -140,62 +145,929 @@
 </div>
 
 <script>
-    // DATELE RĂMÂN NESCHIMBATE
+    // ============================================
+    // BAZA DE DATE PREȚURI - ACTUALIZATĂ
+    // ============================================
     const pricingData = {
+        // ========== IRLANDA - SIMPLU ==========
         ie_simplu: { 
-            name: "Irlanda Simplu", flag: "🇮🇪", tax: 1.23, type: 'zone', prefix: '+353', 
-            note: "MONTAJ SPUMĂ+ȘURUBURI. DEMONTAJUL ESTE INCLUS.",
-            zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:114}, {l:"Raza 60-100km", p:171}, {l:"Raza 100-150km", p:227}], 
+            name: "Irlanda Simplu", 
+            flag: "🇮🇪", 
+            tax: 1.23, 
+            type: 'zone', 
+            prefix: '+353', 
+            note: "ATENȚIE!!! MONTAJ SPUMĂ+ȘURUBURI. DEMONTAJUL E CADOU.",
+            zones: [
+                {l:"Raza 0-40km", p:0}, 
+                {l:"Raza 40-60km", p:114}, 
+                {l:"Raza 60-100km", p:171}, 
+                {l:"Raza 100-150km", p:227}
+            ], 
             cats: [
-                { t: "1. Uși Intrare", items: [{id:"ies1", n:"Ușă 1 deschidere (<90cm)", p:171}, {id:"ies2", n:"Ușă 2 deschideri (<1.30m)", p:205}, {id:"ies3", n:"Ușă 2 deschideri (<1.80m)", p:227}]},
-                { t: "2. Ferestre", items: [{id:"ies4", n:"1 Deschidere (<1m)", p:114}, {id:"ies5", n:"2 Deschideri (<1.50m)", p:137}, {id:"ies6", n:"3-4 Deschideri (<2.20m)", p:147}, {id:"ies7", n:"Bay Window (3 părți)", p:389}]},
-                { t: "3. Uși Glisante", items: [{id:"ies8", n:"Indiferent de mărime", p:284}]},
-                { t: "4. Pervazuri / Scurgeri", items: [{id:"ies9", n:"Până la 1m lungime", p:34}, {id:"ies10", n:"Până la 1.50m lungime", p:42}, {id:"ies11", n:"Până la 2.20m lungime", p:58}]},
-                { t: "5. Plase Insecte", items: [{id:"ies12", n:"Până la 80cm lățime", p:34}, {id:"ies13", n:"80cm - 1.20m lățime", p:42}, {id:"ies14", n:"1.20m - 1.80m lățime", p:58}]},
-                { t: "6. Extra", items: [{id:"ies15", n:"Ridicare etaj (>et.2)", p:53}]}
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"ies1", n:"Ușă 1 deschidere (<90cm)", p:171}, 
+                        {id:"ies2", n:"Ușă 2 deschideri (<1.30m)", p:205}, 
+                        {id:"ies3", n:"Ușă 2 deschideri (<1.80m)", p:227}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"ies4", n:"1 Deschidere (<1m)", p:114}, 
+                        {id:"ies5", n:"2 Deschideri (<1.50m)", p:137}, 
+                        {id:"ies6", n:"3-4 Deschideri (<2.20m)", p:147}, 
+                        {id:"ies7", n:"Bay Window (3 părți)", p:389}
+                    ]
+                },
+                { 
+                    t: "3. Uși Glisante", 
+                    items: [
+                        {id:"ies8", n:"Indiferent de mărime", p:284}
+                    ]
+                },
+                { 
+                    t: "4. Pervazuri / Scurgeri", 
+                    items: [
+                        {id:"ies9", n:"Până la 1m lungime", p:34}, 
+                        {id:"ies10", n:"Până la 1.50m lungime", p:42}, 
+                        {id:"ies11", n:"Până la 2.20m lungime", p:58}
+                    ]
+                },
+                { 
+                    t: "5. Plase Insecte", 
+                    items: [
+                        {id:"ies12", n:"Până la 80cm lățime", p:34}, 
+                        {id:"ies13", n:"80cm - 1.20m lățime", p:42}, 
+                        {id:"ies14", n:"1.20m - 1.80m lățime", p:58}
+                    ]
+                },
+                { 
+                    t: "6. Extra", 
+                    items: [
+                        {id:"ies15", n:"Ridicare etaj (>et.2)", p:53}
+                    ]
+                }
             ] 
         },
+
+        // ========== IRLANDA - CHEIE (LA CHEIE) ==========
         ie_cheie: { 
-            name: "Irlanda Cheie", flag: "🇮🇪", tax: 1.23, type: 'zone', prefix: '+353',
-            note: "MONTAJ LA CHEIE (RENOVARE SAU CONSTRUCȚIE NOUĂ)",
-            zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:111}, {l:"Raza 60-100km", p:163}, {l:"Raza 100-150km", p:221}], 
+            name: "Irlanda Cheie", 
+            flag: "🇮🇪", 
+            tax: 1.23, 
+            type: 'zone', 
+            prefix: '+353',
+            note: "MONTAJ LA CHEIE (RENOVARE SAU CONSTRUCȚIE NOUĂ). Demontaj inclus.",
+            zones: [
+                {l:"Raza 0-40km", p:0}, 
+                {l:"Raza 40-60km", p:111}, 
+                {l:"Raza 60-100km", p:163}, 
+                {l:"Raza 100-150km", p:221}
+            ], 
             cats: [
-                { t: "1. Uși Intrare", items: [{id:"iec1", n:"Ușă 1 deschidere (<90cm)", pr:326, pn:216}, {id:"iec2", n:"Ușă 2 deschideri (<1.30m)", pr:357, pn:252}, {id:"iec3", n:"Ușă 2 deschideri (<1.80m)", pr:378, pn:268}]},
-                { t: "2. Ferestre", items: [{id:"iec4", n:"1 Deschidere (<1m)", pr:195, pn:111}, {id:"iec5", n:"2 Deschideri (<1.50m)", pr:210, pn:142}, {id:"iec6", n:"3-4 Deschideri (<2.20m)", pr:221, pn:163}, {id:"iec7", n:"Bay Window (3 părți)", pr:436, pn:436}]},
-                { t: "3. Uși Glisante", items: [{id:"iec8", n:"Indiferent de mărime", pr:436, pn:378}]},
-                { t: "4. Pervazuri / Scurgeri", items: [{id:"iec9", n:"Până la 1m lungime", pr:34, pn:34}, {id:"iec10", n:"Până la 1.50m lungime", pr:42, pn:42}, {id:"iec11", n:"Până la 2.20m lungime", pr:58, pn:58}]},
-                { t: "5. Plase Insecte", items: [{id:"iec12", n:"Până la 80cm lățime", pr:34, pn:34}, {id:"iec13", n:"80cm - 1.20m lățime", pr:42, pn:42}, {id:"iec14", n:"1.20m - 1.80m lățime", pr:58, pn:58}]},
-                { t: "6. Extra", items: [{id:"iec15", n:"Ridicare etaj (>et.2)", pr:53, pn:53}]}
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"iec1", n:"Ușă 1 deschidere (<90cm)", pr:326, pn:216}, 
+                        {id:"iec2", n:"Ușă 2 deschideri (<1.30m)", pr:357, pn:252}, 
+                        {id:"iec3", n:"Ușă 2 deschideri (<1.80m)", pr:378, pn:268}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"iec4", n:"1 Deschidere (<1m)", pr:195, pn:111}, 
+                        {id:"iec5", n:"2 Deschideri (<1.50m)", pr:210, pn:142}, 
+                        {id:"iec6", n:"3-4 Deschideri (<2.20m)", pr:221, pn:163}, 
+                        {id:"iec7", n:"Bay Window (3 părți)", pr:436, pn:436}
+                    ]
+                },
+                { 
+                    t: "3. Uși Glisante", 
+                    items: [
+                        {id:"iec8", n:"Indiferent de mărime", pr:436, pn:378}
+                    ]
+                },
+                { 
+                    t: "4. Pervazuri / Scurgeri", 
+                    items: [
+                        {id:"iec9", n:"Până la 1m lungime", pr:34, pn:34}, 
+                        {id:"iec10", n:"Până la 1.50m lungime", pr:42, pn:42}, 
+                        {id:"iec11", n:"Până la 2.20m lungime", pr:58, pn:58}
+                    ]
+                },
+                { 
+                    t: "5. Plase Insecte", 
+                    items: [
+                        {id:"iec12", n:"Până la 80cm lățime", pr:34, pn:34}, 
+                        {id:"iec13", n:"80cm - 1.20m lățime", pr:42, pn:42}, 
+                        {id:"iec14", n:"1.20m - 1.80m lățime", pr:58, pn:58}
+                    ]
+                },
+                { 
+                    t: "6. Extra", 
+                    items: [
+                        {id:"iec15", n:"Ridicare etaj (>et.2)", pr:53, pn:53}
+                    ]
+                }
             ] 
         },
+
+        // ========== IRLANDA - FINISH EXTERIOR ==========
         ie_finish: { 
-            name: "Irlanda Finish Ext", flag: "🇮🇪", tax: 1.23, type: 'zone', prefix: '+353',
-            note: "SILICON EXTERIOR + SPUMĂ INTERIOR. DEMONTAJUL ESTE INCLUS.",
-            zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:114}, {l:"Raza 60-100km", p:171}, {l:"Raza 100-150km", p:227}], 
+            name: "Irlanda Finish Ext", 
+            flag: "🇮🇪", 
+            tax: 1.23, 
+            type: 'zone', 
+            prefix: '+353',
+            note: "ATENȚIE!!! SILICON EXTERIOR + SPUMĂ INTERIOR. DEMONTAJUL E CADOU.",
+            zones: [
+                {l:"Raza 0-40km", p:0}, 
+                {l:"Raza 40-60km", p:114}, 
+                {l:"Raza 60-100km", p:171}, 
+                {l:"Raza 100-150km", p:227}
+            ], 
             cats: [
-                { t: "1. Uși Intrare", items: [{id:"ief1", n:"Ușă 1 deschidere (<90cm)", p:227}, {id:"ief2", n:"Ușă 2 deschideri (<1.30m)", p:261}, {id:"ief3", n:"Ușă 2 deschideri (<1.80m)", p:284}]},
-                { t: "2. Ferestre", items: [{id:"ief4", n:"1 Deschidere (<1m)", p:137}, {id:"ief5", n:"2 Deschideri (<1.50m)", p:159}, {id:"ief6", n:"3-4 Deschideri (<2.20m)", p:171}, {id:"ief7", n:"Bay Window (3 părți)", p:436}]},
-                { t: "3. Uși Glisante", items: [{id:"ief8", n:"Indiferent de mărime", p:341}]},
-                { t: "4. Pervazuri / Scurgeri", items: [{id:"ief9", n:"Până la 1m lungime", p:34}, {id:"ief10", n:"Până la 1.50m lungime", p:42}, {id:"ief11", n:"Până la 2.20m lungime", p:58}]},
-                { t: "5. Plase Insecte", items: [{id:"ief12", n:"Până la 80cm lățime", p:34}, {id:"ief13", n:"80cm - 1.20m lățime", p:42}, {id:"ief14", n:"1.20m - 1.80m lățime", p:58}]},
-                { t: "6. Extra", items: [{id:"ief15", n:"Ridicare etaj (>et.2)", p:53}]}
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"ief1", n:"Ușă 1 deschidere (<90cm)", p:227}, 
+                        {id:"ief2", n:"Ușă 2 deschideri (<1.30m)", p:261}, 
+                        {id:"ief3", n:"Ușă 2 deschideri (<1.80m)", p:284}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"ief4", n:"1 Deschidere (<1m)", p:137}, 
+                        {id:"ief5", n:"2 Deschideri (<1.50m)", p:159}, 
+                        {id:"ief6", n:"3-4 Deschideri (<2.20m)", p:171}, 
+                        {id:"ief7", n:"Bay Window (3 părți)", p:436}
+                    ]
+                },
+                { 
+                    t: "3. Uși Glisante", 
+                    items: [
+                        {id:"ief8", n:"Indiferent de mărime", p:341}
+                    ]
+                },
+                { 
+                    t: "4. Pervazuri / Scurgeri", 
+                    items: [
+                        {id:"ief9", n:"Până la 1m lungime", p:34}, 
+                        {id:"ief10", n:"Până la 1.50m lungime", p:42}, 
+                        {id:"ief11", n:"Până la 2.20m lungime", p:58}
+                    ]
+                },
+                { 
+                    t: "5. Plase Insecte", 
+                    items: [
+                        {id:"ief12", n:"Până la 80cm lățime", p:34}, 
+                        {id:"ief13", n:"80cm - 1.20m lățime", p:42}, 
+                        {id:"ief14", n:"1.20m - 1.80m lățime", p:58}
+                    ]
+                },
+                { 
+                    t: "6. Extra", 
+                    items: [
+                        {id:"ief15", n:"Ridicare etaj (>et.2)", p:53}
+                    ]
+                }
             ] 
         },
-        torino: { name: "Torino (IT)", flag: "🇮🇹", tax: 1.22, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Elemente", items: [{id:"t1", n:"Ușă PVC (1-2 canate)", p:134}, {id:"t2", n:"Fereastră (1-4 canate)", p:134}, {id:"t3", n:"Casonet / Taparella", p:40}, {id:"t4", n:"Plasă Insecte", p:15}, {id:"t5", n:"Pervaz", p:15}, {id:"t6", n:"Măsurare", p:150}] }] },
-        bologna: { name: "Bologna (IT)", flag: "🇮🇹", tax: 1.15, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Tâmplărie", items: [{id:"b1", n:"Ușă PVC", pr:160, pn:133}, {id:"b2", n:"Fereastră 1-2 canate", pr:100, pn:72}, {id:"b3", n:"Fereastră 3-4 canate", pr:127, pn:94}, {id:"b4", n:"Casonet / Taparella", p:35}, {id:"b5", n:"Plasă", p:15}, {id:"b6", n:"Demontaj", p:27}, {id:"b7", n:"Măsurare", p:150}] }] },
-        milano: { name: "Milano (IT)", flag: "🇮🇹", tax: 1.24, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Tâmplărie", items: [{id:"m1", n:"Fereastră 1 canat", pr:95, pn:74}, {id:"m2", n:"Fereastră 2 canate", pr:116, pn:95}, {id:"m3", n:"Ușă PVC 1 canat", pr:137, pn:116}, {id:"m4", n:"Casonet", p:32}, {id:"m5", n:"Plasă", p:15}, {id:"m6", n:"Măsurare", p:167}] }] },
-        genova: { name: "Genova (IT)", flag: "🇮🇹", tax: 1.22, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Montaj", items: [{id:"g1", n:"Fereastră 1 canat", pr:78, pn:55}, {id:"g2", n:"Fereastră 2 canate", pr:83, pn:61}, {id:"g3", n:"Ușă PVC", pr:155, pn:134}, {id:"g4", n:"Casonet", p:35}, {id:"g5", n:"Plasă", p:12}, {id:"g6", n:"Măsurare", p:167}] }] },
-        paris: { name: "Paris (FR)", flag: "🇫🇷", tax: 1.20, type: 'zone', prefix: '+33', zones: [{l:"Raza 0-40km", p:0}, {l:"Raza 40-60km", p:56}, {l:"Raza 60-100km", p:111}], cats: [{ t: "Uși & Ferestre", items: [{id:"p1", n:"Ușă 1 deschidere", pr:111, pn:100}, {id:"p2", n:"Ușă 2 deschideri", pr:133, pn:111}, {id:"p3", n:"Fereastră 1 desch.", pr:100, pn:78}, {id:"p4", n:"Fereastră 2 desch.", pr:111, pn:89}, {id:"p5", n:"Ușă Glisantă", pr:189, pn:167}] }, { t: "Accesorii", items: [{id:"p7", n:"Pervaz", p:33}, {id:"p8", n:"Plasă Geam", p:22}, {id:"p9", n:"Plasă Ușă", p:28}, {id:"p10", n:"Roletă Manuală", p:56}, {id:"p11", n:"Roletă Electrică", p:66}] }, { t: "Extra", items: [{id:"p12", n:"Etaj 1-3", p:11}, {id:"p13", n:"Etaj 3-6", p:17}, {id:"p14", n:"Evacuare Geam", p:22}, {id:"p15", n:"Evacuare Ușă", p:33}, {id:"p16", n:"Măsurare", p:167}] }] },
-        roma: { name: "Roma (IT)", flag: "🇮🇹", tax: 1.22, rate: 0.6, type: 'per_km', prefix: '+39', cats: [{ t: "Tâmplărie", items: [{id:"r1", n:"Ușă PVC 1 desch.", pr:137, pn:116}, {id:"r2", n:"Fereastră 1 desch.", pr:95, pn:74}, {id:"r3", n:"Ușă Balcon 1 desch.", pr:126, pn:105}] }, { t: "Glisante", items: [{id:"r4", n:"Paralel Glisantă", pr:231, pn:210}, {id:"r5", n:"Veka Motion", pr:331, pn:310}] }, { t: "Accesorii", items: [{id:"r6", n:"Casonet", p:48}, {id:"r7", n:"Taparella Manuală", pr:53, pn:32}, {id:"r8", n:"Taparella Electrică", pr:83, pn:62}, {id:"r9", n:"Persiana", pr:74, pn:48}] }, { t: "Extra", items: [{id:"r10", n:"Demontaj", p:21}, {id:"r11", n:"Măsurare", p:150}] }] },
-        kassel: { name: "Kassel (DE)", flag: "🇩🇪", tax: 1.19, type: 'zone', prefix: '+49', zones: [{l:"Oraș", p:0}, {l:"Exterior", p:50}], cats: [{ t: "Montaj ML", items: [{id:"k1", n:"Casă Nouă", p:50}, {id:"k2", n:"Renovare", p:55.5}, {id:"k3", n:"Renovare+Evacuare", p:61}] }, { t: "Extra", items: [{id:"k4", n:"Ușă VEKA (+)", p:167}, {id:"k5", n:"Taparella Man", p:44}, {id:"k6", n:"Plasă", p:33}, {id:"k7", n:"Măsurare", p:56}] }] },
-        koln: { name: "Koln (DE)", flag: "🇩🇪", tax: 1.19, rate: 0.8, type: 'per_km', prefix: '+49', cats: [{ t: "Uși/Geam", items: [{id:"ko1", n:"Ușă 1 desch.", pr:211, pn:178}, {id:"ko2", n:"Geam 1 desch.", pr:133, pn:111}, {id:"ko3", n:"Balcon 1 desch.", pr:167, pn:144}] }, { t: "Glisante", items: [{id:"ko4", n:"Glisantă Simplă", pr:289, pn:255}, {id:"ko5", n:"Veka Motion", pr:355, pn:322}] }, { t: "Extra", items: [{id:"ko7", n:"Finisaj", p:44}, {id:"ko8", n:"Evacuare", p:22}, {id:"ko9", n:"Măsurare", p:167}] }] },
-        viena: { name: "Viena (AT)", flag: "🇦🇹", tax: 1.20, rate: 1, type: 'per_km', prefix: '+43', cats: [{ t: "Montaj", items: [{id:"v1", n:"Reparație", p:158}, {id:"v2", n:"Casă Nouă", p:179}, {id:"v3", n:"Montaj ML", p:27}, {id:"v4", n:"Roletă", p:48}, {id:"v5", n:"Demontaj", p:25}, {id:"v6", n:"Măsurare", p:150}] }] }
+
+        // ========== FAENZA/RIMINI/PESARO (ITALIA) ==========
+        faenza: { 
+            name: "Faenza/Rimini (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.22, 
+            rate: 0.6, 
+            type: 'zone', 
+            prefix: '+39',
+            note: "DEMONTAJ: 16€ fereastră, 21€ ușă. Măsurare minimă 150€. Evacuare nu este disponibilă.",
+            zones: [
+                {l:"Forli/Cesena/Rimini/Pesaro/Imola", p:0}, 
+                {l:"Faenza (50-100km)", p:158}
+            ], 
+            cats: [
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"fz1", n:"Ușă PVC 1 deschidere", pr:158, pn:132},
+                        {id:"fz2", n:"Ușă PVC 2 deschideri", pr:158, pn:132}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"fz3", n:"Fereastră 1 deschidere", pr:79, pn:59},
+                        {id:"fz4", n:"Fereastră 2 deschideri", pr:79, pn:59},
+                        {id:"fz5", n:"Fereastră 3-4 deschideri", pr:95, pn:74}
+                    ]
+                },
+                { 
+                    t: "3. Uși Balcon", 
+                    items: [
+                        {id:"fz6", n:"Ușă balcon 1 deschidere", pr:121, pn:95},
+                        {id:"fz7", n:"Ușă balcon 2 deschideri", pr:121, pn:95},
+                        {id:"fz8", n:"Ușă balcon 3-4 deschideri", pr:147, pn:121}
+                    ]
+                },
+                { 
+                    t: "4. Uși Glisante", 
+                    items: [
+                        {id:"fz9", n:"Ușă paralel glisantă", pr:160, pn:140},
+                        {id:"fz10", n:"Ușă Veka Motion", pr:200, pn:180}
+                    ]
+                },
+                { 
+                    t: "5. Casonete", 
+                    items: [
+                        {id:"fz11", n:"Montaj Casonet", pr:53, pn:42}
+                    ]
+                },
+                { 
+                    t: "6. Taparella", 
+                    items: [
+                        {id:"fz12", n:"Taparella Manuală", pr:79, pn:69},
+                        {id:"fz13", n:"Taparella Electrică", pr:89, pn:79}
+                    ]
+                },
+                { 
+                    t: "7. Plase Insecte", 
+                    items: [
+                        {id:"fz14", n:"Plasă Fereastră", p:21},
+                        {id:"fz15", n:"Plasă Ușă", p:27}
+                    ]
+                },
+                { 
+                    t: "8. Persiane Ferestre", 
+                    items: [
+                        {id:"fz16", n:"Persiana 1 deschidere", p:90},
+                        {id:"fz17", n:"Persiana 2 deschideri", p:121}
+                    ]
+                },
+                { 
+                    t: "9. Persiane Uși Balcon", 
+                    items: [
+                        {id:"fz18", n:"Persiana 1 deschidere", p:90},
+                        {id:"fz19", n:"Persiana 2 deschideri", p:121}
+                    ]
+                },
+                { 
+                    t: "10. Extra", 
+                    items: [
+                        {id:"fz20", n:"Aplicare Coprofil", p:40},
+                        {id:"fz21", n:"Ridicare etaj Fereastră", p:22},
+                        {id:"fz22", n:"Ridicare etaj Ușă", p:33},
+                        {id:"fz23", n:"Măsurare", p:150}
+                    ]
+                }
+            ] 
+        },
+
+        // ========== FERRARA/MODENA/RAVENNA (ITALIA) ==========
+        ferrara: { 
+            name: "Ferrara/Modena/Ravenna (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.15, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39',
+            note: "DEMONTAJ: 27€/unitate. Măsurare: 150€ avans. Montaj CASH. Evacuare: 0.55€/kg. Factura +15%.",
+            cats: [
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"fer1", n:"Ușă PVC 1 deschidere", pr:160, pn:133},
+                        {id:"fer2", n:"Ușă PVC 2 deschideri", pr:160, pn:133}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"fer3", n:"Fereastră 1 deschidere", pr:100, pn:72},
+                        {id:"fer4", n:"Fereastră 2 deschideri", pr:100, pn:72},
+                        {id:"fer5", n:"Fereastră 3-4 deschideri", pr:127, pn:94}
+                    ]
+                },
+                { 
+                    t: "3. Uși Balcon", 
+                    items: [
+                        {id:"fer6", n:"Ușă balcon 1 deschidere", pr:122, pn:89},
+                        {id:"fer7", n:"Ușă balcon 2 deschideri", pr:122, pn:89},
+                        {id:"fer8", n:"Ușă balcon 3-4 deschideri", pr:161, pn:133}
+                    ]
+                },
+                { 
+                    t: "4. Uși Glisante", 
+                    items: [
+                        {id:"fer9", n:"Ușă paralel glisantă", pr:277, pn:225},
+                        {id:"fer10", n:"Ușă Veka Motion", pr:338, pn:310}
+                    ]
+                },
+                { 
+                    t: "5. Casonete", 
+                    items: [
+                        {id:"fer11", n:"Montaj Casonet", pr:45, pn:33}
+                    ]
+                },
+                { 
+                    t: "6. Taparella", 
+                    items: [
+                        {id:"fer12", n:"Taparella Manuală", pr:78, pn:61},
+                        {id:"fer13", n:"Taparella Electrică", pr:99, pn:82}
+                    ]
+                },
+                { 
+                    t: "7. Plase Insecte", 
+                    items: [
+                        {id:"fer14", n:"Plasă Fereastră", p:28},
+                        {id:"fer15", n:"Plasă Ușă", p:39}
+                    ]
+                },
+                { 
+                    t: "8. Persiane Ferestre", 
+                    items: [
+                        {id:"fer16", n:"Persiana 1 deschidere", pr:89, pn:72},
+                        {id:"fer17", n:"Persiana 2 deschideri", pr:89, pn:72}
+                    ]
+                },
+                { 
+                    t: "9. Persiane Uși Balcon", 
+                    items: [
+                        {id:"fer18", n:"Persiana 1 deschidere", pr:111, pn:94},
+                        {id:"fer19", n:"Persiana 2 deschideri", pr:111, pn:94}
+                    ]
+                },
+                { 
+                    t: "10. Extra", 
+                    items: [
+                        {id:"fer20", n:"Aplicare Coprofil", p:15},
+                        {id:"fer21", n:"Ridicare etaj Fereastră", p:22},
+                        {id:"fer22", n:"Ridicare etaj Ușă", p:33},
+                        {id:"fer23", n:"Demontaj (unitate)", p:27},
+                        {id:"fer24", n:"Măsurare", p:150}
+                    ]
+                }
+            ] 
+        },
+
+        // ========== GROSSETO/FIRENZE/PERUGIA - CASH (ITALIA) ==========
+        grosseto_cash: { 
+            name: "Grosseto/Firenze (Cash)", 
+            flag: "🇮🇹", 
+            tax: 1.00, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39',
+            note: "PREȚURI CASH (FĂRĂ TVA). Demontaj: 25€. Măsurare: 167€ avans. Evacuare: 0.40€/kg. Transport >25km de Grosseto: 0.6€/km.",
+            cats: [
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"grc1", n:"Ușă PVC 1 deschidere", pr:140, pn:120},
+                        {id:"grc2", n:"Ușă PVC 2 deschideri", pr:140, pn:120}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"grc3", n:"Fereastră 1 deschidere", pr:111, pn:62},
+                        {id:"grc4", n:"Fereastră 2 deschideri", pr:111, pn:62},
+                        {id:"grc5", n:"Fereastră 3-4 deschideri", pr:111, pn:62}
+                    ]
+                },
+                { 
+                    t: "3. Uși Balcon", 
+                    items: [
+                        {id:"grc6", n:"Ușă balcon 1 deschidere", pr:140, pn:92},
+                        {id:"grc7", n:"Ușă balcon 2 deschideri", pr:140, pn:92},
+                        {id:"grc8", n:"Ușă balcon 3-4 deschideri", pr:140, pn:92}
+                    ]
+                },
+                { 
+                    t: "4. Uși Glisante", 
+                    items: [
+                        {id:"grc9", n:"Ușă paralel glisantă", pr:190, pn:165},
+                        {id:"grc10", n:"Ușă Veka Motion", pr:270, pn:245}
+                    ]
+                },
+                { 
+                    t: "5. Casonete", 
+                    items: [
+                        {id:"grc11", n:"Montaj Casonet", pr:53, pn:45}
+                    ]
+                },
+                { 
+                    t: "6. Taparella", 
+                    items: [
+                        {id:"grc12", n:"Taparella Manuală", p:49},
+                        {id:"grc13", n:"Taparella Electrică", p:78}
+                    ]
+                },
+                { 
+                    t: "7. Plase Insecte", 
+                    items: [
+                        {id:"grc14", n:"Plasă Fereastră", p:29},
+                        {id:"grc15", n:"Plasă Ușă", p:29}
+                    ]
+                },
+                { 
+                    t: "8. Persiane Ferestre", 
+                    items: [
+                        {id:"grc16", n:"Persiana 1 deschidere", pr:78, pn:72},
+                        {id:"grc17", n:"Persiana 2 deschideri", pr:78, pn:72}
+                    ]
+                },
+                { 
+                    t: "9. Persiane Uși Balcon", 
+                    items: [
+                        {id:"grc18", n:"Persiana 1 deschidere", pr:96, pn:92},
+                        {id:"grc19", n:"Persiana 2 deschideri", pr:96, pn:92}
+                    ]
+                },
+                { 
+                    t: "10. Extra", 
+                    items: [
+                        {id:"grc20", n:"Ridicare etaj Fereastră", p:22},
+                        {id:"grc21", n:"Ridicare etaj Ușă", p:33},
+                        {id:"grc22", n:"Demontaj", p:25},
+                        {id:"grc23", n:"Măsurare", p:167}
+                    ]
+                }
+            ] 
+        },
+
+        // ========== GROSSETO/FIRENZE/PERUGIA - FACTURĂ (ITALIA) ==========
+        grosseto_factura: { 
+            name: "Grosseto/Firenze (Factură)", 
+            flag: "🇮🇹", 
+            tax: 1.00, 
+            rate: 0.55, 
+            type: 'per_km', 
+            prefix: '+39',
+            hideTaxButton: true,
+            note: "PREȚURI CU FACTURĂ (TVA 22% deja inclus). Demontaj: 25€. Măsurare: 165€ avans. Evacuare: 0.40€/kg. Transport >25km: 0.55€/km.",
+            cats: [
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"grf1", n:"Ușă PVC 1-2 deschideri", pr:160, pn:133}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"grf2", n:"Fereastră (orice mărime)", pr:128, pn:72}
+                    ]
+                },
+                { 
+                    t: "3. Uși Balcon", 
+                    items: [
+                        {id:"grf3", n:"Porta Finestra (orice)", pr:161, pn:105}
+                    ]
+                },
+                { 
+                    t: "4. Uși Glisante", 
+                    items: [
+                        {id:"grf4", n:"Ușă paralel glisantă", pr:216, pn:189},
+                        {id:"grf5", n:"Ușă Veka Motion", pr:305, pn:278}
+                    ]
+                },
+                { 
+                    t: "5. Casonete", 
+                    items: [
+                        {id:"grf6", n:"Montaj Casonet", pr:61, pn:45}
+                    ]
+                },
+                { 
+                    t: "6. Taparella", 
+                    items: [
+                        {id:"grf7", n:"Taparella Manuală", pr:55, pn:50},
+                        {id:"grf8", n:"Taparella Electrică", pr:78, pn:78}
+                    ]
+                },
+                { 
+                    t: "7. Plase Insecte", 
+                    items: [
+                        {id:"grf9", n:"Plasă (fereastră/ușă)", p:33}
+                    ]
+                },
+                { 
+                    t: "8. Persiane", 
+                    items: [
+                        {id:"grf10", n:"Persiana fereastră", pr:89, pn:83},
+                        {id:"grf11", n:"Persiana ușă", pr:111, pn:105}
+                    ]
+                },
+                { 
+                    t: "9. Extra", 
+                    items: [
+                        {id:"grf12", n:"Ridicare etaj Fereastră", p:22},
+                        {id:"grf13", n:"Ridicare etaj Ușă", p:33},
+                        {id:"grf14", n:"Demontaj", p:25},
+                        {id:"grf15", n:"Măsurare", p:165}
+                    ]
+                }
+            ] 
+        },
+
+        // ========== PADOVA/VERONA/VENETIA (ITALIA) ==========
+        padova: { 
+            name: "Padova/Verona/Venezia (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.22, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39',
+            note: "DEMONTAJ: 22€/unitate. Măsurare: 167€. Evacuare: 0.40€/kg. Factură +22%. Tăiere marmură: geam 15€/latură, ușă 20€/latură.",
+            cats: [
+                { 
+                    t: "1. Uși Intrare", 
+                    items: [
+                        {id:"pad1", n:"Ușă PVC 1 deschidere", pr:155, pn:134},
+                        {id:"pad2", n:"Ușă PVC 2 deschideri", pr:155, pn:134}
+                    ]
+                },
+                { 
+                    t: "2. Ferestre", 
+                    items: [
+                        {id:"pad3", n:"Fereastră 1 deschidere", pr:85, pn:70},
+                        {id:"pad4", n:"Fereastră 2 deschideri", pr:90, pn:75},
+                        {id:"pad5", n:"Fereastră 3-4 deschideri", pr:110, pn:90}
+                    ]
+                },
+                { 
+                    t: "3. Uși Balcon", 
+                    items: [
+                        {id:"pad6", n:"Ușă balcon 1 deschidere", pr:90, pn:75},
+                        {id:"pad7", n:"Ușă balcon 2 deschideri", pr:95, pn:80},
+                        {id:"pad8", n:"Ușă balcon 3-4 deschideri", pr:115, pn:95}
+                    ]
+                },
+                { 
+                    t: "4. Uși Glisante", 
+                    items: [
+                        {id:"pad9", n:"Ușă paralel glisantă", pr:270, pn:250},
+                        {id:"pad10", n:"Ușă Veka Motion", pr:320, pn:300}
+                    ]
+                },
+                { 
+                    t: "5. Casonete", 
+                    items: [
+                        {id:"pad11", n:"Montaj Casonet", pr:70, pn:50}
+                    ]
+                },
+                { 
+                    t: "6. Taparella", 
+                    items: [
+                        {id:"pad12", n:"Taparella Manuală", p:50},
+                        {id:"pad13", n:"Taparella Electrică", p:70}
+                    ]
+                },
+                { 
+                    t: "7. Plase Insecte", 
+                    items: [
+                        {id:"pad14", n:"Plasă Fereastră", p:45},
+                        {id:"pad15", n:"Plasă Ușă", p:45}
+                    ]
+                },
+                { 
+                    t: "8. Persiane Ferestre", 
+                    items: [
+                        {id:"pad16", n:"Persiana 1 deschidere", p:75},
+                        {id:"pad17", n:"Persiana 2 deschideri", p:80}
+                    ]
+                },
+                { 
+                    t: "9. Persiane Uși Balcon", 
+                    items: [
+                        {id:"pad18", n:"Persiana 1 deschidere", p:80},
+                        {id:"pad19", n:"Persiana 2 deschideri", p:85}
+                    ]
+                },
+                { 
+                    t: "10. Extra", 
+                    items: [
+                        {id:"pad20", n:"Aplicare Coprofil", p:45},
+                        {id:"pad21", n:"Ridicare etaj Fereastră", p:22},
+                        {id:"pad22", n:"Ridicare etaj Ușă", p:33},
+                        {id:"pad23", n:"Demontaj (unitate)", p:22},
+                        {id:"pad24", n:"Măsurare", p:167}
+                    ]
+                }
+            ] 
+        },
+
+        // ========== TORINO (ITALIA) ==========
+        torino: { 
+            name: "Torino (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.22, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39', 
+            cats: [
+                { 
+                    t: "Elemente", 
+                    items: [
+                        {id:"t1", n:"Ușă PVC (1-2 canate)", p:134}, 
+                        {id:"t2", n:"Fereastră (1-4 canate)", p:134}, 
+                        {id:"t3", n:"Casonet / Taparella", p:40}, 
+                        {id:"t4", n:"Plasă Insecte", p:15}, 
+                        {id:"t5", n:"Pervaz", p:15}, 
+                        {id:"t6", n:"Măsurare", p:150}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== BOLOGNA (ITALIA) ==========
+        bologna: { 
+            name: "Bologna (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.15, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39', 
+            cats: [
+                { 
+                    t: "Tâmplărie", 
+                    items: [
+                        {id:"b1", n:"Ușă PVC", pr:160, pn:133}, 
+                        {id:"b2", n:"Fereastră 1-2 canate", pr:100, pn:72}, 
+                        {id:"b3", n:"Fereastră 3-4 canate", pr:127, pn:94}, 
+                        {id:"b4", n:"Casonet / Taparella", p:35}, 
+                        {id:"b5", n:"Plasă", p:15}, 
+                        {id:"b6", n:"Demontaj", p:27}, 
+                        {id:"b7", n:"Măsurare", p:150}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== MILANO (ITALIA) ==========
+        milano: { 
+            name: "Milano (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.24, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39', 
+            cats: [
+                { 
+                    t: "Tâmplărie", 
+                    items: [
+                        {id:"m1", n:"Fereastră 1 canat", pr:95, pn:74}, 
+                        {id:"m2", n:"Fereastră 2 canate", pr:116, pn:95}, 
+                        {id:"m3", n:"Ușă PVC 1 canat", pr:137, pn:116}, 
+                        {id:"m4", n:"Casonet", p:32}, 
+                        {id:"m5", n:"Plasă", p:15}, 
+                        {id:"m6", n:"Măsurare", p:167}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== GENOVA (ITALIA) ==========
+        genova: { 
+            name: "Genova (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.22, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39', 
+            cats: [
+                { 
+                    t: "Montaj", 
+                    items: [
+                        {id:"g1", n:"Fereastră 1 canat", pr:78, pn:55}, 
+                        {id:"g2", n:"Fereastră 2 canate", pr:83, pn:61}, 
+                        {id:"g3", n:"Ușă PVC", pr:155, pn:134}, 
+                        {id:"g4", n:"Casonet", p:35}, 
+                        {id:"g5", n:"Plasă", p:12}, 
+                        {id:"g6", n:"Măsurare", p:167}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== PARIS (FRANȚA) ==========
+        paris: { 
+            name: "Paris (FR)", 
+            flag: "🇫🇷", 
+            tax: 1.20, 
+            type: 'zone', 
+            prefix: '+33', 
+            zones: [
+                {l:"Raza 0-40km", p:0}, 
+                {l:"Raza 40-60km", p:56}, 
+                {l:"Raza 60-100km", p:111}
+            ], 
+            cats: [
+                { 
+                    t: "Uși & Ferestre", 
+                    items: [
+                        {id:"p1", n:"Ușă 1 deschidere", pr:111, pn:100}, 
+                        {id:"p2", n:"Ușă 2 deschideri", pr:133, pn:111}, 
+                        {id:"p3", n:"Fereastră 1 desch.", pr:100, pn:78}, 
+                        {id:"p4", n:"Fereastră 2 desch.", pr:111, pn:89}, 
+                        {id:"p5", n:"Ușă Glisantă", pr:189, pn:167}
+                    ] 
+                }, 
+                { 
+                    t: "Accesorii", 
+                    items: [
+                        {id:"p7", n:"Pervaz", p:33}, 
+                        {id:"p8", n:"Plasă Geam", p:22}, 
+                        {id:"p9", n:"Plasă Ușă", p:28}, 
+                        {id:"p10", n:"Roletă Manuală", p:56}, 
+                        {id:"p11", n:"Roletă Electrică", p:66}
+                    ] 
+                }, 
+                { 
+                    t: "Extra", 
+                    items: [
+                        {id:"p12", n:"Etaj 1-3", p:11}, 
+                        {id:"p13", n:"Etaj 3-6", p:17}, 
+                        {id:"p14", n:"Evacuare Geam", p:22}, 
+                        {id:"p15", n:"Evacuare Ușă", p:33}, 
+                        {id:"p16", n:"Măsurare", p:167}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== ROMA (ITALIA) ==========
+        roma: { 
+            name: "Roma (IT)", 
+            flag: "🇮🇹", 
+            tax: 1.22, 
+            rate: 0.6, 
+            type: 'per_km', 
+            prefix: '+39', 
+            cats: [
+                { 
+                    t: "Tâmplărie", 
+                    items: [
+                        {id:"r1", n:"Ușă PVC 1 desch.", pr:137, pn:116}, 
+                        {id:"r2", n:"Fereastră 1 desch.", pr:95, pn:74}, 
+                        {id:"r3", n:"Ușă Balcon 1 desch.", pr:126, pn:105}
+                    ] 
+                }, 
+                { 
+                    t: "Glisante", 
+                    items: [
+                        {id:"r4", n:"Paralel Glisantă", pr:231, pn:210}, 
+                        {id:"r5", n:"Veka Motion", pr:331, pn:310}
+                    ] 
+                }, 
+                { 
+                    t: "Accesorii", 
+                    items: [
+                        {id:"r6", n:"Casonet", p:48}, 
+                        {id:"r7", n:"Taparella Manuală", pr:53, pn:32}, 
+                        {id:"r8", n:"Taparella Electrică", pr:83, pn:62}, 
+                        {id:"r9", n:"Persiana", pr:74, pn:48}
+                    ] 
+                }, 
+                { 
+                    t: "Extra", 
+                    items: [
+                        {id:"r10", n:"Demontaj", p:21}, 
+                        {id:"r11", n:"Măsurare", p:150}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== KASSEL (GERMANIA) ==========
+        kassel: { 
+            name: "Kassel (DE)", 
+            flag: "🇩🇪", 
+            tax: 1.19, 
+            type: 'zone', 
+            prefix: '+49', 
+            zones: [
+                {l:"Oraș", p:0}, 
+                {l:"Exterior", p:50}
+            ], 
+            cats: [
+                { 
+                    t: "Montaj ML", 
+                    items: [
+                        {id:"k1", n:"Casă Nouă", p:50}, 
+                        {id:"k2", n:"Renovare", p:55.5}, 
+                        {id:"k3", n:"Renovare+Evacuare", p:61}
+                    ] 
+                }, 
+                { 
+                    t: "Extra", 
+                    items: [
+                        {id:"k4", n:"Ușă VEKA (+)", p:167}, 
+                        {id:"k5", n:"Taparella Man", p:44}, 
+                        {id:"k6", n:"Plasă", p:33}, 
+                        {id:"k7", n:"Măsurare", p:56}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== KOLN (GERMANIA) ==========
+        koln: { 
+            name: "Koln (DE)", 
+            flag: "🇩🇪", 
+            tax: 1.19, 
+            rate: 0.8, 
+            type: 'per_km', 
+            prefix: '+49', 
+            cats: [
+                { 
+                    t: "Uși/Geam", 
+                    items: [
+                        {id:"ko1", n:"Ușă 1 desch.", pr:211, pn:178}, 
+                        {id:"ko2", n:"Geam 1 desch.", pr:133, pn:111}, 
+                        {id:"ko3", n:"Balcon 1 desch.", pr:167, pn:144}
+                    ] 
+                }, 
+                { 
+                    t: "Glisante", 
+                    items: [
+                        {id:"ko4", n:"Glisantă Simplă", pr:289, pn:255}, 
+                        {id:"ko5", n:"Veka Motion", pr:355, pn:322}
+                    ] 
+                }, 
+                { 
+                    t: "Extra", 
+                    items: [
+                        {id:"ko7", n:"Finisaj", p:44}, 
+                        {id:"ko8", n:"Evacuare", p:22}, 
+                        {id:"ko9", n:"Măsurare", p:167}
+                    ] 
+                }
+            ] 
+        },
+
+        // ========== VIENA (AUSTRIA) ==========
+        viena: { 
+            name: "Viena (AT)", 
+            flag: "🇦🇹", 
+            tax: 1.20, 
+            rate: 1, 
+            type: 'per_km', 
+            prefix: '+43', 
+            cats: [
+                { 
+                    t: "Montaj", 
+                    items: [
+                        {id:"v1", n:"Reparație", p:158}, 
+                        {id:"v2", n:"Casă Nouă", p:179}, 
+                        {id:"v3", n:"Montaj ML", p:27}, 
+                        {id:"v4", n:"Roletă", p:48}, 
+                        {id:"v5", n:"Demontaj", p:25}, 
+                        {id:"v6", n:"Măsurare", p:150}
+                    ] 
+                }
+            ] 
+        }
     };
 
-    let state = { region: 'ie_simplu', type: 'renovare', quantities: {}, dist: 0, tax: false, client: { name: 'Beneficiar', phone: '+353' } };
+    // ============================================
+    // ORGANIZARE REGIUNI PE ȚĂRI
+    // ============================================
+    const regionsByCountry = {
+        "🇮🇪 Irlanda": ["ie_simplu", "ie_cheie", "ie_finish"],
+        "🇮🇹 Italia": ["faenza", "ferrara", "grosseto_cash", "grosseto_factura", "padova", "torino", "bologna", "milano", "genova", "roma"],
+        "🇫🇷 Franța": ["paris"],
+        "🇩🇪 Germania": ["kassel", "koln"],
+        "🇦🇹 Austria": ["viena"]
+    };
 
+    // ============================================
+    // STAREA APLICAȚIEI
+    // ============================================
+    let state = { 
+        region: 'ie_simplu', 
+        type: 'renovare', 
+        quantities: {}, 
+        dist: 0, 
+        tax: false, 
+        client: { name: 'Beneficiar', phone: '+353' },
+        expandedCountries: {} // Track which countries are expanded
+    };
+
+    // ============================================
+    // FUNCȚII PRINCIPALE
+    // ============================================
     function init() {
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ro-RO', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
         renderRegions();
         renderConfig();
         updateUI();
@@ -203,19 +1075,72 @@
 
     function renderRegions() {
         const container = document.getElementById('region-list');
-        container.innerHTML = '<h3 class="px-3 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 lg:block hidden">Pachete & Regiuni</h3>';
-        Object.entries(pricingData).forEach(([id, r]) => {
-            const btn = document.createElement('button');
-            const isActive = state.region === id;
-            btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all flex items-center justify-between group mb-1 shrink-0 ${isActive ? 'active-region' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
-            btn.innerHTML = `<div class="flex items-center"><span class="mr-3 text-lg">${r.flag}</span><span class="text-xs font-bold">${r.name}</span></div>`;
-            btn.onclick = () => { 
-                state.region = id; state.quantities = {}; state.dist = 0; 
-                state.client.phone = r.prefix;
-                document.getElementById('client-phone-input').value = r.prefix;
-                renderRegions(); renderConfig(); updateUI(); 
+        container.innerHTML = '<h3 class="px-3 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 lg:block hidden">Regiuni Disponibile</h3>';
+        
+        // Initialize expanded countries if not set
+        if (Object.keys(state.expandedCountries).length === 0) {
+            Object.keys(regionsByCountry).forEach(country => {
+                // Auto-expand the country that contains the current region
+                const hasActiveRegion = regionsByCountry[country].includes(state.region);
+                state.expandedCountries[country] = hasActiveRegion;
+            });
+        }
+        
+        Object.entries(regionsByCountry).forEach(([countryName, regionIds]) => {
+            const isExpanded = state.expandedCountries[countryName];
+            const hasActiveRegion = regionIds.includes(state.region);
+            
+            // Country header button
+            const countryBtn = document.createElement('button');
+            countryBtn.className = `w-full text-left px-4 py-3 rounded-xl transition-all flex items-center justify-between mb-1 ${hasActiveRegion ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            countryBtn.innerHTML = `
+                <div class="flex items-center">
+                    <span class="text-base mr-2">${countryName.split(' ')[0]}</span>
+                    <span class="text-xs font-bold">${countryName.split(' ').slice(1).join(' ')}</span>
+                    <span class="ml-2 text-[9px] bg-slate-700 px-2 py-0.5 rounded-full">${regionIds.length}</span>
+                </div>
+                <svg class="w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            `;
+            countryBtn.onclick = () => {
+                state.expandedCountries[countryName] = !state.expandedCountries[countryName];
+                renderRegions();
             };
-            container.appendChild(btn);
+            container.appendChild(countryBtn);
+            
+            // Regions list (collapsible)
+            if (isExpanded) {
+                const regionsContainer = document.createElement('div');
+                regionsContainer.className = 'ml-2 mb-2 space-y-1';
+                
+                regionIds.forEach(regionId => {
+                    const r = pricingData[regionId];
+                    const isActive = state.region === regionId;
+                    
+                    const regionBtn = document.createElement('button');
+                    regionBtn.className = `w-full text-left px-4 py-2.5 rounded-lg transition-all flex items-center justify-between group ${isActive ? 'active-region' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 bg-slate-900/30'}`;
+                    regionBtn.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2 text-sm">${r.flag}</span>
+                            <span class="text-[11px] font-bold">${r.name}</span>
+                        </div>
+                    `;
+                    regionBtn.onclick = () => { 
+                        state.region = regionId; 
+                        state.quantities = {}; 
+                        state.dist = 0; 
+                        state.client.phone = r.prefix;
+                        document.getElementById('client-phone-input').value = r.prefix;
+                        renderRegions(); 
+                        renderConfig(); 
+                        updateUI(); 
+                    };
+                    regionsContainer.appendChild(regionBtn);
+                });
+                
+                container.appendChild(regionsContainer);
+            }
         });
     }
 
@@ -254,15 +1179,20 @@
 
     function updateUI() {
         const data = pricingData[state.region];
+        
+        // Actualizare butoane tip instalație
         document.getElementById('btn-renovare').className = `w-full py-2 text-[10px] font-black rounded-lg border-2 transition-all ${state.type === 'renovare' ? 'bg-white text-slate-900 border-white shadow-md' : 'text-slate-500 border-slate-800 lg:border-slate-800'}`;
         document.getElementById('btn-nou').className = `w-full py-2 text-[10px] font-black rounded-lg border-2 transition-all ${state.type === 'nou' ? 'bg-white text-slate-900 border-white shadow-md' : 'text-slate-500 border-slate-800 lg:border-slate-800'}`;
         
+        // Actualizare info regiune
         document.getElementById('view-region-badge').innerText = data.name.toUpperCase();
         document.getElementById('view-region-note').innerText = data.note || "Ofertă Profesională de Montaj";
         document.getElementById('view-type-label').innerText = state.type === 'renovare' ? 'Renovare' : 'Casă Nouă';
         
+        // Calcul total și generare tabel
         let subtotal = 0;
         let itemsHtml = '';
+        
         data.cats.forEach(cat => {
             cat.items.forEach(item => {
                 const qty = parseFloat(state.quantities[item.id]) || 0;
@@ -275,6 +1205,7 @@
             });
         });
 
+        // Calcul transport
         const transport = data.type === 'per_km' ? (state.dist * data.rate) : (data.zones[state.dist]?.p || 0);
         if(transport > 0) {
             itemsHtml += `<tr class="bg-slate-50/50"><td class="py-3 px-2 italic text-[10px] font-bold text-slate-500 tracking-wider uppercase">Transport (${data.type === 'per_km' ? state.dist + ' km' : 'Zonă'})</td><td class="py-3 text-center text-xs font-black">1</td><td class="py-3 px-2 text-right text-xs font-black text-slate-900 price-col">${transport.toFixed(0)}€</td></tr>`;
@@ -282,13 +1213,22 @@
 
         document.getElementById('invoice-items').innerHTML = itemsHtml || '<tr><td colspan="3" class="py-16 text-center text-slate-300 text-xs font-black uppercase tracking-widest">Selectați servicii din meniul stâng</td></tr>';
         
+        // Total final
         const totalFinal = state.tax ? ((subtotal + transport) * data.tax) : (subtotal + transport);
         document.getElementById('total-amount').innerText = Math.round(totalFinal).toLocaleString();
         
+        // Buton taxă - ascunde pentru regiuni cu hideTaxButton: true
         const taxBtn = document.getElementById('tax-btn');
-        taxBtn.innerText = state.tax ? `Include Taxă (${Math.round(data.tax*100-100)}%)` : `Preț Cash (0% Tax)`;
-        taxBtn.className = `no-pdf px-4 py-2 rounded-xl text-[10px] font-black uppercase border-2 transition-all ${state.tax ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg' : 'bg-white text-slate-400 border-slate-200'}`;
+        if (data.hideTaxButton) {
+            taxBtn.style.display = 'none';
+            state.tax = false; // Forțăm taxa să fie false pentru aceste regiuni
+        } else {
+            taxBtn.style.display = 'block';
+            taxBtn.innerText = state.tax ? `Include Taxă (${Math.round(data.tax*100-100)}%)` : `Preț Cash (0% Tax)`;
+            taxBtn.className = `no-pdf px-4 py-2 rounded-xl text-[10px] font-black uppercase border-2 transition-all ${state.tax ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg' : 'bg-white text-slate-400 border-slate-200'}`;
+        }
         
+        // Info client
         document.getElementById('view-client-name').innerText = state.client.name || 'Beneficiar';
         document.getElementById('view-client-phone').innerText = state.client.phone || '---';
         document.getElementById('extra-notes').innerText = data.note ? `* Notă: ${data.note}` : "";
@@ -313,10 +1253,25 @@
         });
     }
 
-    function setInstallType(t) { state.type = t; renderConfig(); updateUI(); }
-    function toggleTax() { state.tax = !state.tax; updateUI(); }
-    function updateClientInfo(k, v) { state.client[k] = v; updateUI(); }
+    function setInstallType(t) { 
+        state.type = t; 
+        renderConfig(); 
+        updateUI(); 
+    }
 
+    function toggleTax() { 
+        state.tax = !state.tax; 
+        updateUI(); 
+    }
+
+    function updateClientInfo(k, v) { 
+        state.client[k] = v; 
+        updateUI(); 
+    }
+
+    // ============================================
+    // INIȚIALIZARE
+    // ============================================
     window.onload = init;
 </script>
 </body>
