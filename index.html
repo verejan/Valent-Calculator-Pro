@@ -24,6 +24,11 @@
         .pdf-mode .no-pdf { display: none !important; }
         .pdf-mode { padding: 40px !important; width: 210mm !important; margin: 0 auto !important; }
         .hide-prices .price-col { display: none !important; }
+        
+        /* Prevent page breaks in critical sections */
+        .pdf-mode #client-costs-table { page-break-inside: avoid; }
+        .pdf-mode .bg-slate-50.p-6 { page-break-inside: avoid; margin-top: 20px; }
+        .pdf-mode #client-info-text { page-break-inside: avoid; }
 
         @media (max-width: 1024px) {
             .main-layout { flex-direction: column; height: auto; overflow-y: auto; }
@@ -61,9 +66,20 @@
     <aside class="w-full lg:w-80 bg-white border-r border-slate-200 flex flex-col shadow-xl z-10 side-panel">
         <div class="p-4 lg:p-6 border-b border-slate-100 bg-slate-50/50">
             <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Informații Beneficiar</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+            <div class="grid grid-cols-1 gap-3">
                 <input oninput="updateClientInfo('name', this.value)" class="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Nume Beneficiar">
                 <input oninput="updateClientInfo('phone', this.value)" id="client-phone-input" class="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Telefon">
+                <input oninput="updateClientInfo('address', this.value)" class="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Adresa Montajului">
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-slate-200">
+                <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Informații Proiect (Doar PDF Client)</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" oninput="updateClientInfo('kg', this.value)" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="KG Proiect">
+                    <input type="number" oninput="updateClientInfo('m2', this.value)" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="M² Geamuri">
+                    <input type="number" oninput="updateClientInfo('pvcCost', this.value)" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Cost PVC (€)">
+                    <input type="number" oninput="updateClientInfo('transportCost', this.value)" class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-bold focus:border-emerald-500 outline-none" placeholder="Transport (€)">
+                </div>
             </div>
         </div>
 
@@ -71,7 +87,7 @@
             <!-- Dinamica produselor -->
         </div>
 
-        <div class="p-4 lg:p-6 bg-slate-50 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+        <div class="p-4 lg:p-6 bg-slate-50 border-t border-slate-100 grid grid-cols-2 lg:grid-cols-1 gap-2">
             <button onclick="generatePDF('tech')" class="w-full bg-slate-800 text-white py-3 rounded-xl text-[10px] font-black uppercase hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 PDF Tehnic
@@ -100,11 +116,12 @@
             </div>
 
             <div class="p-6 lg:p-10 flex-1" id="pdf-content">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10 pb-10 border-b border-slate-100">
+                <div class="grid grid-cols-2 gap-8 mb-10 pb-10 border-b border-slate-100">
                     <div>
                         <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Beneficiar</h4>
                         <p id="view-client-name" class="text-sm font-bold text-slate-800">---</p>
                         <p id="view-client-phone" class="text-xs text-slate-500 mt-1 font-medium">---</p>
+                        <p id="view-client-address" class="text-xs text-slate-500 mt-1 font-medium">---</p>
                     </div>
                     <div class="sm:text-right">
                         <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Tip Proiect</h4>
@@ -112,17 +129,126 @@
                     </div>
                 </div>
 
+                <!-- Detalii Proiect - Doar pentru PDF Client -->
+                <div id="project-details-section" class="mb-10 pb-10 border-b border-slate-100" style="display: none;">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Detalii Proiect</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div id="kg-detail" class="bg-slate-50 rounded-xl p-3">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Greutate</p>
+                            <p class="text-sm font-black text-slate-800"><span id="view-kg">---</span> kg</p>
+                        </div>
+                        <div id="m2-detail" class="bg-slate-50 rounded-xl p-3">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Suprafață</p>
+                            <p class="text-sm font-black text-slate-800"><span id="view-m2">---</span> m²</p>
+                        </div>
+                        <div id="pvc-detail" class="bg-slate-50 rounded-xl p-3">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Cost PVC</p>
+                            <p class="text-sm font-black text-emerald-600"><span id="view-pvc">---</span>€</p>
+                        </div>
+                        <div id="transport-detail" class="bg-slate-50 rounded-xl p-3">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Transport</p>
+                            <p class="text-sm font-black text-emerald-600"><span id="view-transport">---</span>€</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table class="w-full mb-10 min-w-[400px]" id="main-table">
+                    <table class="w-full mb-6 min-w-[400px]" id="main-table">
                         <thead>
                             <tr class="border-b border-slate-100 text-left">
-                                <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Serviciu / Produs</th>
-                                <th class="pb-4 text-center text-[10px] font-black text-slate-400 uppercase w-16 tracking-widest">Cant</th>
-                                <th class="pb-4 text-right text-[10px] font-black text-slate-400 uppercase w-24 price-col tracking-widest">Subtotal</th>
+                                <th class="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Serviciu / Produs</th>
+                                <th class="pb-3 text-center text-[10px] font-black text-slate-400 uppercase w-16 tracking-widest">Cant</th>
+                                <th class="pb-3 text-right text-[10px] font-black text-slate-400 uppercase w-24 price-col tracking-widest">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody id="invoice-items" class="divide-y divide-slate-50"></tbody>
                     </table>
+
+                    <!-- Tabel Costuri Suplimentare - Doar PDF Client -->
+                    <table class="w-full mb-6 min-w-[400px] client-only-costs" id="client-costs-table" style="display: none;">
+                        <thead>
+                            <tr class="border-b-2 border-emerald-500 text-left">
+                                <th class="pb-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest" colspan="2">Costuri Produse PVC</th>
+                                <th class="pb-3 text-right text-[10px] font-black text-emerald-600 uppercase w-24 tracking-widest">Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-cost-items" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+
+                <!-- Text informativ pentru client - doar PDF Client -->
+                <div id="client-info-text" class="mt-8 p-6 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl border-l-4 border-emerald-500" style="display: none;">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-sm font-black text-slate-800 mb-2 flex items-center">
+                                <span class="text-emerald-600 mr-2">📋</span> Documente Necesare
+                            </h4>
+                            <ul class="text-xs text-slate-600 leading-relaxed space-y-1">
+                                <li>• Buletinul pentru întocmirea contractului</li>
+                                <li>• Adresă de e-mail pentru corespondență</li>
+                                <li>• Un număr de telefon secundar</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-black text-slate-800 mb-2 flex items-center">
+                                <span class="text-blue-600 mr-2">💳</span> Plata
+                            </h4>
+                            <div class="text-xs text-slate-600 leading-relaxed space-y-2">
+                                <p>• Se achită un avans de <strong>40%</strong> din costul proiectului prin transfer bancar la semnarea contractului.</p>
+                                <p>• După confirmarea plății, veți primi factura de avans prin e-mail.</p>
+                                <p>• Când produsele sunt gata și ambalate, veți primi poze cu comanda finalizată din partea logistului nostru, alături de contul de plată pentru <strong>40%</strong> conform contractului.</p>
+                                <p>• În urma montării ferestrelor și aplicarea lucrărilor de finisaj se achită ultimele <strong>20%</strong>.</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-black text-slate-800 mb-2 flex items-center">
+                                <span class="text-amber-600 mr-2">📄</span> Documente Livrate
+                            </h4>
+                            <ul class="text-xs text-slate-600 leading-relaxed space-y-1">
+                                <li>• Factură fiscală valabilă în orice țară din UE</li>
+                                <li>• Certificat termic CE, care atestă conformitatea produselor cu standardele europene</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-black text-slate-800 mb-2 flex items-center">
+                                <span class="text-purple-600 mr-2">🛡️</span> Garanție
+                            </h4>
+                            <div class="text-xs text-slate-600 leading-relaxed space-y-2">
+                                <p>• <strong>10 ani</strong> pentru carcasă, sticlă și mecanisme, în cazul apariției unor defecțiuni.</p>
+                                <p>• Garanția pentru execuție a tâmplăriei PVC cu geam termoizolant este de <strong>10 ani</strong>, durata medie de utilizare fiind de peste <strong>50 de ani</strong>.</p>
+                                <p>• Toate ferestrele sunt echipate cu mânere Roto Sekustic, cu contra-acționare greșită, ridicător de cercevea, oscilobatare pe orizontală cu blocatori antiefracție, balamale reglabile, micro ventilație.</p>
+                                <p>• Produsele VALENT dețin marcaj CE precum și certificare ISO 9001.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-black text-slate-800 mb-2 flex items-center">
+                                <span class="text-red-600 mr-2">⚠️</span> Condiții Importante
+                            </h4>
+                            <div class="text-xs text-slate-600 leading-relaxed space-y-2">
+                                <p>• Prețurile sunt valabile pentru comanda confirmată în maxim <strong>3 zile lucrătoare</strong> de la data acesteia. După această perioadă, ne rezervăm dreptul de a face modificări asupra prețurilor și termenelor de livrare.</p>
+                                <p>• Vă rugăm să efectuați o inspecție vizuală a comenzii livrate, transmițându-ne orice neconformități în termen de <strong>3 zile</strong> de la sosirea mărfurilor. Pentru orice reclamație primită după 3 zile, societatea YODANEXTPRIM SRL nu va fi trasă la răspundere.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t-2 border-emerald-300 bg-white/50 rounded-xl p-4">
+                            <div class="grid grid-cols-2 gap-2 text-[9px]">
+                                <div>
+                                    <p class="font-black text-slate-700 mb-0.5">Contact:</p>
+                                    <p class="text-slate-600 leading-tight">📞 +31 97010266613</p>
+                                    <p class="text-slate-600 leading-tight">📧 sales.nl.valent@gmail.com</p>
+                                </div>
+                                <div>
+                                    <p class="font-black text-slate-700 mb-0.5">Adresa Producție:</p>
+                                    <p class="text-slate-600 leading-tight">Bulevardul Biruinței 253-257</p>
+                                    <p class="text-slate-600 leading-tight">Pantelimon 077145, București, România</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="extra-notes" class="text-[10px] text-slate-500 leading-relaxed font-medium"></div>
@@ -131,8 +257,8 @@
             <div class="bg-slate-50 p-6 lg:p-10 border-t border-slate-100 mt-auto">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
                     <button onclick="toggleTax()" id="tax-btn" class="no-pdf w-full sm:w-auto px-6 py-2 rounded-xl text-[10px] font-black uppercase border transition-all"></button>
-                    <div class="text-center sm:text-right w-full sm:w-auto">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Total Montaj (EUR)</p>
+                    <div class="text-center sm:text-right w-full sm:w-auto" id="total-display-section">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest" id="total-label">Total Montaj (EUR)</p>
                         <div class="flex items-end justify-center sm:justify-end gap-1">
                             <span id="total-amount" class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter">0</span>
                             <span class="text-xl font-black text-slate-900 mb-1.5">€</span>
@@ -1135,7 +1261,15 @@
         quantities: {}, 
         dist: 0, 
         tax: false, 
-        client: { name: 'Beneficiar', phone: '+353' },
+        client: { 
+            name: 'Beneficiar', 
+            phone: '+353',
+            address: '',
+            kg: '',
+            m2: '',
+            pvcCost: '',
+            transportCost: ''
+        },
         expandedCountries: {} // Track which countries are expanded
     };
 
@@ -1239,7 +1373,7 @@
         html += `</div><div class="space-y-6">`;
         
         data.cats.forEach(cat => {
-            html += `<div><h4 class="text-[10px] font-black text-emerald-600 mb-3 uppercase tracking-wider">${cat.t}</h4><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">`;
+            html += `<div><h4 class="text-[10px] font-black text-emerald-600 mb-3 uppercase tracking-wider">${cat.t}</h4><div class="grid grid-cols-2 lg:grid-cols-1 gap-2">`;
             cat.items.forEach(item => {
                 const val = state.quantities[item.id] || "";
                 const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
@@ -1274,21 +1408,43 @@
         let itemsHtml = '';
         
         data.cats.forEach(cat => {
+            let categoryItems = [];
+            let categorySubtotal = 0;
+            
+            // Collect all items from this category
             cat.items.forEach(item => {
                 const qty = parseFloat(state.quantities[item.id]) || 0;
                 if(qty > 0) {
                     const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
                     const lineTotal = qty * price;
-                    subtotal += lineTotal;
-                    itemsHtml += `<tr><td class="py-4"><p class="text-[11px] font-bold text-slate-800">${item.n}</p></td><td class="py-4 text-center text-xs font-black text-slate-500">${qty}</td><td class="py-4 text-right text-xs font-black text-slate-900 price-col">${lineTotal.toLocaleString()}€</td></tr>`;
+                    categorySubtotal += lineTotal;
+                    categoryItems.push({
+                        name: item.n,
+                        qty: qty,
+                        total: lineTotal
+                    });
                 }
             });
+            
+            // If category has items, render them grouped
+            if(categoryItems.length > 0) {
+                subtotal += categorySubtotal;
+                const categoryName = cat.t.replace(/^\d+\.\s*/, '');
+                
+                // Category header row
+                itemsHtml += `<tr class="bg-emerald-50"><td colspan="3" class="py-1.5 px-2"><p class="text-[9px] font-black text-emerald-700 uppercase tracking-wide">${categoryName}</p></td></tr>`;
+                
+                // Items in this category
+                categoryItems.forEach(item => {
+                    itemsHtml += `<tr><td class="py-2 pl-4"><p class="text-[11px] font-bold text-slate-800">${item.name}</p></td><td class="py-2 text-center text-xs font-black text-slate-500">${item.qty}</td><td class="py-2 text-right text-xs font-black text-slate-900 price-col">${item.total.toLocaleString()}€</td></tr>`;
+                });
+            }
         });
 
         // Calcul transport
         const transport = data.type === 'per_km' ? (state.dist * data.rate) : (data.zones[state.dist]?.p || 0);
         if(transport > 0) {
-            itemsHtml += `<tr class="bg-slate-50/50"><td class="py-3 px-2 italic text-[10px] font-bold text-slate-500 tracking-wider uppercase">Transport (${data.type === 'per_km' ? state.dist + ' km' : 'Zonă'})</td><td class="py-3 text-center text-xs font-black">1</td><td class="py-3 px-2 text-right text-xs font-black text-slate-900 price-col">${transport.toFixed(0)}€</td></tr>`;
+            itemsHtml += `<tr class="bg-slate-50/50"><td class="py-2 px-2 italic text-[10px] font-bold text-slate-500 tracking-wider uppercase">Transport (${data.type === 'per_km' ? state.dist + ' km' : 'Zonă'})</td><td class="py-2 text-center text-xs font-black">1</td><td class="py-2 px-2 text-right text-xs font-black text-slate-900 price-col">${transport.toFixed(0)}€</td></tr>`;
         }
 
         document.getElementById('invoice-items').innerHTML = itemsHtml || '<tr><td colspan="3" class="py-16 text-center text-slate-300 text-xs font-black uppercase tracking-widest">Selectați servicii din meniul stâng</td></tr>';
@@ -1311,6 +1467,17 @@
         // Info client
         document.getElementById('view-client-name').innerText = state.client.name || 'Beneficiar';
         document.getElementById('view-client-phone').innerText = state.client.phone || '---';
+        
+        // Info client
+        document.getElementById('view-client-name').innerText = state.client.name || 'Beneficiar';
+        document.getElementById('view-client-phone').innerText = state.client.phone || '---';
+        document.getElementById('view-client-address').innerText = state.client.address || '';
+        
+        // Update project details displays
+        if (state.client.kg) document.getElementById('view-kg').innerText = state.client.kg;
+        if (state.client.m2) document.getElementById('view-m2').innerText = state.client.m2;
+        if (state.client.pvcCost) document.getElementById('view-pvc').innerText = state.client.pvcCost;
+        if (state.client.transportCost) document.getElementById('view-transport').innerText = state.client.transportCost;
         
         // Simplified note - only show if it contains important info, not implementation details
         const noteElement = document.getElementById('extra-notes');
@@ -1338,7 +1505,82 @@
     function generatePDF(mode) {
         const element = document.getElementById('invoice-doc');
         element.classList.add('pdf-mode');
-        if (mode === 'client') element.classList.add('hide-prices');
+        
+        // Show/hide sections based on PDF type
+        const projectDetailsSection = document.getElementById('project-details-section');
+        const clientCostsTable = document.getElementById('client-costs-table');
+        const clientInfoText = document.getElementById('client-info-text');
+        const totalLabel = document.getElementById('total-label');
+        const totalAmount = document.getElementById('total-amount');
+        
+        // Store original values
+        const originalLabel = totalLabel.innerText;
+        const originalAmount = totalAmount.innerText;
+        
+        if (mode === 'client') {
+            element.classList.add('hide-prices');
+            
+            // Show project details if any data exists
+            const hasProjectDetails = state.client.kg || state.client.m2 || state.client.pvcCost || state.client.transportCost;
+            if (hasProjectDetails) {
+                projectDetailsSection.style.display = 'block';
+            }
+            
+            // Build client costs summary table - always show if we have PVC or transport costs
+            const pvcCost = parseFloat(state.client.pvcCost) || 0;
+            const transportCost = parseFloat(state.client.transportCost) || 0;
+            
+            if (pvcCost > 0 || transportCost > 0) {
+                // Calculate montaj total from main table
+                const data = pricingData[state.region];
+                let montajSubtotal = 0;
+                
+                data.cats.forEach(cat => {
+                    cat.items.forEach(item => {
+                        const qty = parseFloat(state.quantities[item.id]) || 0;
+                        if(qty > 0) {
+                            const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
+                            montajSubtotal += qty * price;
+                        }
+                    });
+                });
+                
+                const transport = data.type === 'per_km' ? (state.dist * data.rate) : (data.zones[state.dist]?.p || 0);
+                montajSubtotal += transport;
+                
+                const montajTotal = state.tax ? (montajSubtotal * data.tax) : montajSubtotal;
+                
+                // Build summary table
+                let clientCostsHtml = '';
+                clientCostsHtml += `<tr class="bg-emerald-50"><td class="py-4" colspan="2"><p class="text-sm font-black text-slate-800">TOTAL MONTAJ</p></td><td class="py-4 text-right text-base font-black text-slate-900">${Math.round(montajTotal).toLocaleString()}€</td></tr>`;
+                
+                if (pvcCost > 0) {
+                    clientCostsHtml += `<tr class="bg-blue-50"><td class="py-4" colspan="2"><p class="text-sm font-black text-slate-800">Ferestre și Uși PVC</p></td><td class="py-4 text-right text-base font-black text-slate-900">${pvcCost.toLocaleString()}€</td></tr>`;
+                }
+                if (transportCost > 0) {
+                    clientCostsHtml += `<tr class="bg-amber-50"><td class="py-4" colspan="2"><p class="text-sm font-black text-slate-800">Transport Produse</p></td><td class="py-4 text-right text-base font-black text-slate-900">${transportCost.toLocaleString()}€</td></tr>`;
+                }
+                
+                // Grand total row
+                const grandTotal = montajTotal + pvcCost + transportCost;
+                clientCostsHtml += `<tr class="border-t-4 border-emerald-500 bg-emerald-100"><td class="py-5" colspan="2"><p class="text-lg font-black text-emerald-900 uppercase">TOTAL PROIECT</p></td><td class="py-5 text-right text-2xl font-black text-emerald-900">${Math.round(grandTotal).toLocaleString()}€</td></tr>`;
+                
+                document.getElementById('client-cost-items').innerHTML = clientCostsHtml;
+                clientCostsTable.style.display = 'table';
+                
+                // Show client info text
+                clientInfoText.style.display = 'block';
+                
+                // Update footer total to show grand total
+                totalLabel.innerText = 'Total Proiect (EUR)';
+                totalAmount.innerText = Math.round(grandTotal).toLocaleString();
+            }
+        } else {
+            // Hide client-only sections in technical PDF
+            projectDetailsSection.style.display = 'none';
+            clientCostsTable.style.display = 'none';
+            clientInfoText.style.display = 'none';
+        }
 
         const opt = {
             margin: [0, 0],
@@ -1351,6 +1593,13 @@
         html2pdf().set(opt).from(element).save().then(() => {
             element.classList.remove('pdf-mode');
             element.classList.remove('hide-prices');
+            // Hide client sections again after PDF generation
+            projectDetailsSection.style.display = 'none';
+            clientCostsTable.style.display = 'none';
+            clientInfoText.style.display = 'none';
+            // Restore original footer values
+            totalLabel.innerText = originalLabel;
+            totalAmount.innerText = originalAmount;
         });
     }
 
