@@ -2141,7 +2141,7 @@
             const pvcCost = parseFloat(state.client.pvcCost) || 0;
             const transportCost = parseFloat(state.client.transportCost) || 0;
             
-            // Check if we have additional costs
+            // Check if we have additional costs (PVC project)
             const hasAdditionalCosts = pvcCost > 0 || transportCost > 0;
             
             // Show project details if any data exists
@@ -2175,6 +2175,9 @@
                 // Update footer total to show grand total
                 totalLabel.innerText = 'Total Proiect (EUR)';
                 totalAmount.innerText = Math.round(grandTotal).toLocaleString();
+                
+                // Show Terms & Conditions for PVC projects
+                clientInfoText.style.display = 'block';
             } else {
                 // If NO PVC or Transport, show only TOTAL MONTAJ as final total
                 clientCostsHtml += `<tr class="border-t-4 border-emerald-500 bg-emerald-100"><td class="py-5" colspan="2"><p class="text-lg font-black text-emerald-900 uppercase">TOTAL MONTAJ</p></td><td class="py-5 text-right text-2xl font-black text-emerald-900">${Math.round(montajTotal).toLocaleString()}€</td></tr>`;
@@ -2182,13 +2185,13 @@
                 // Update footer total to show montaj total
                 totalLabel.innerText = 'Total Montaj (EUR)';
                 totalAmount.innerText = Math.round(montajTotal).toLocaleString();
+                
+                // Hide Terms & Conditions for montaj-only (they refer to PVC projects)
+                clientInfoText.style.display = 'none';
             }
             
             document.getElementById('client-cost-items').innerHTML = clientCostsHtml;
             clientCostsTable.style.display = 'table';
-            
-            // ALWAYS show client info text (terms & conditions)
-            clientInfoText.style.display = 'block';
         } else {
             // Hide client-only sections in technical PDF
             projectDetailsSection.style.display = 'none';
