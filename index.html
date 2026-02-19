@@ -2115,46 +2115,50 @@
         if (mode === 'client') {
             element.classList.add('hide-prices');
             
-            // Show project details if any data exists
-            const hasProjectDetails = state.client.kg || state.client.m2 || state.client.pvcCost || state.client.transportCost;
-            if (hasProjectDetails) {
-                projectDetailsSection.style.display = 'block';
-                // Update project details
-                document.getElementById('view-kg').innerText = state.client.kg || '---';
-                document.getElementById('view-m2').innerText = state.client.m2 || '---';
-                document.getElementById('view-pvc').innerText = state.client.pvcCost || '---';
-                document.getElementById('view-transport').innerText = state.client.transportCost || '---';
-            }
+            // Calculate montaj total from main table
+            let montajSubtotal = 0;
             
-            // Build client costs summary table
+            data.cats.forEach(cat => {
+                cat.items.forEach(item => {
+                    const isMeasure = item.n.toLowerCase().includes('măsur') || item.n.toLowerCase().includes('masur');
+                    if (isMeasure) return;
+                    
+                    const qty = parseFloat(state.quantities[item.id]) || 0;
+                    if (qty > 0) {
+                        const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
+                        montajSubtotal += qty * price;
+                    }
+                });
+            });
+            
+            const transport = data.type === 'per_km' ? (state.dist * data.rate) : (data.zones[state.dist]?.p || 0);
+            const measureCost = parseFloat(state.measureCost) || 0;
+            montajSubtotal += transport + measureCost;
+            
+            const montajTotal = state.tax ? (montajSubtotal * data.tax) : montajSubtotal;
+            
+            // Get client costs (may be 0)
             const pvcCost = parseFloat(state.client.pvcCost) || 0;
             const transportCost = parseFloat(state.client.transportCost) || 0;
             
-            if (pvcCost > 0 || transportCost > 0) {
-                // Calculate montaj total from main table
-                let montajSubtotal = 0;
-                
-                data.cats.forEach(cat => {
-                    cat.items.forEach(item => {
-                        const isMeasure = item.n.toLowerCase().includes('măsur') || item.n.toLowerCase().includes('masur');
-                        if (isMeasure) return;
-                        
-                        const qty = parseFloat(state.quantities[item.id]) || 0;
-                        if (qty > 0) {
-                            const price = state.type === 'renovare' ? (item.pr ?? item.p) : (item.pn ?? item.p);
-                            montajSubtotal += qty * price;
-                        }
-                    });
-                });
-                
-                const transport = data.type === 'per_km' ? (state.dist * data.rate) : (data.zones[state.dist]?.p || 0);
-                const measureCost = parseFloat(state.measureCost) || 0;
-                montajSubtotal += transport + measureCost;
-                
-                const montajTotal = state.tax ? (montajSubtotal * data.tax) : montajSubtotal;
-                
-                // Build summary table
-                let clientCostsHtml = '';
+            // Check if we have additional costs
+            const hasAdditionalCosts = pvcCost > 0 || transportCost > 0;
+            
+            // Show project details if any data exists
+            const hasProjectDetails = state.client.kg || state.client.m2 || hasAdditionalCosts;
+            if (hasProjectDetails) {
+                projectDetailsSection.style.display = 'block';
+                document.getElementById('view-kg').innerText = state.client.kg || '---';
+                document.getElementById('view-m2').innerText = state.client.m2 || '---';
+                document.getElementById('view-pvc').innerText = pvcCost > 0 ? pvcCost : '---';
+                document.getElementById('view-transport').innerText = transportCost > 0 ? transportCost : '---';
+            }
+            
+            // Build client costs summary table
+            let clientCostsHtml = '';
+            
+            if (hasAdditionalCosts) {
+                // If we have PVC or Transport, show breakdown with TOTAL PROIECT
                 clientCostsHtml += `<tr class="bg-emerald-50"><td class="py-4" colspan="2"><p class="text-sm font-black text-slate-800">TOTAL MONTAJ</p></td><td class="py-4 text-right text-base font-black text-slate-900">${Math.round(montajTotal).toLocaleString()}€</td></tr>`;
                 
                 if (pvcCost > 0) {
@@ -2168,16 +2172,23 @@
                 const grandTotal = montajTotal + pvcCost + transportCost;
                 clientCostsHtml += `<tr class="border-t-4 border-emerald-500 bg-emerald-100"><td class="py-5" colspan="2"><p class="text-lg font-black text-emerald-900 uppercase">TOTAL PROIECT</p></td><td class="py-5 text-right text-2xl font-black text-emerald-900">${Math.round(grandTotal).toLocaleString()}€</td></tr>`;
                 
-                document.getElementById('client-cost-items').innerHTML = clientCostsHtml;
-                clientCostsTable.style.display = 'table';
-                
-                // Show client info text
-                clientInfoText.style.display = 'block';
-                
                 // Update footer total to show grand total
                 totalLabel.innerText = 'Total Proiect (EUR)';
                 totalAmount.innerText = Math.round(grandTotal).toLocaleString();
+            } else {
+                // If NO PVC or Transport, show only TOTAL MONTAJ as final total
+                clientCostsHtml += `<tr class="border-t-4 border-emerald-500 bg-emerald-100"><td class="py-5" colspan="2"><p class="text-lg font-black text-emerald-900 uppercase">TOTAL MONTAJ</p></td><td class="py-5 text-right text-2xl font-black text-emerald-900">${Math.round(montajTotal).toLocaleString()}€</td></tr>`;
+                
+                // Update footer total to show montaj total
+                totalLabel.innerText = 'Total Montaj (EUR)';
+                totalAmount.innerText = Math.round(montajTotal).toLocaleString();
             }
+            
+            document.getElementById('client-cost-items').innerHTML = clientCostsHtml;
+            clientCostsTable.style.display = 'table';
+            
+            // ALWAYS show client info text (terms & conditions)
+            clientInfoText.style.display = 'block';
         } else {
             // Hide client-only sections in technical PDF
             projectDetailsSection.style.display = 'none';
